@@ -28,7 +28,7 @@
           system = "x86_64-linux";
           modules = [
             ./hosts/tynix/configuration.nix
-            #./hosts/tynix/hardware-configuration.nix
+            ./hosts/tynix/hardware-configuration.nix
             home-manager.nixosModules.home-manager
             {
               _module.args.unstable = import unstable {
