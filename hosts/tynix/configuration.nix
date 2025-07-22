@@ -2,11 +2,8 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, unstable, ... }:
 
-let
-  unstable = import <unstable> { config = { allowUnfree = true; }; };
-in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -28,8 +25,7 @@ in
   
   # Auto upgrades
   system.autoUpgrade.enable = true;
-  #system.autoUpgrade.allowReboot = true;
-  system.autoUpgrade.channel = "https://channels.nixos.org/nixos-unstable";
+  system.autoUpgrade.channel = "https://channels.nixos.org/nixos-24.05";
 
   # Networking stuff
   networking.hostName = "Tynix"; # Define your hostname.
