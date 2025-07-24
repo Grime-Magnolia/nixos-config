@@ -291,6 +291,7 @@
       nixos-generators
       protontricks
       handbrake
+      wvkbd
       # Image and Video management
       freetube
       helvum

@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ inputs, config, pkgs, ... }:
 
 {
   # This value determines the Home Manager release that your
@@ -11,8 +11,8 @@
   # changes in each release.
   
   wayland.windowManager.hyprland.plugins = with pkgs; [
-    hyprlandPlugins.hyprgrass
     hyprlandPlugins.hyprtrails
+    inputs.hyprgrass.packages.${pkgs.system}.default
   ];
   home.stateVersion = "24.11";
 }
