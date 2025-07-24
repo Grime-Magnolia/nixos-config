@@ -2,7 +2,7 @@
   description = "My NixOS configuration as a flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     home-manager.url = "github:nix-community/home-manager";
@@ -30,6 +30,11 @@
             ./hosts/tynix/configuration.nix
             ./hosts/tynix/hardware-configuration.nix
             home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.tygo = import ./home.nix;
+            }
             {
               _module.args.unstable = import unstable {
                 system = "x86_64-linux";
