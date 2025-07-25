@@ -10,7 +10,7 @@
     hyprland.url = "github:hyprwm/Hyprland";
   };
 
-  outputs = { self, nixpkgs, flake-utils, home-manager, unstable, ... }:
+  outputs = { self, nixpkgs, flake-utils, hyprland, home-manager, unstable, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
