@@ -34,9 +34,7 @@
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.users.tygo = import ./home.nix {
-                inherit pkgs hyprland;
-              };
+              home-manager.users.tygo = import ./home.nix;
             }
             {
               _module.args.unstable = import unstable {
