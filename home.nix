@@ -17,7 +17,7 @@
       pkgs.hyprlandPlugins.hyprtrails
       pkgs.hyprlandPlugins.hyprgrass
     ];
-  }
+  };
   home.stateVersion = "24.11";
 }
 
