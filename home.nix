@@ -1,4 +1,4 @@
-{ inputs, config, pkgs, ... }:
+{ inputs, config, pkgs, hyprland, ... }:
 
 {
   # This value determines the Home Manager release that your
