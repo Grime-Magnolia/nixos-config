@@ -12,7 +12,7 @@
   
   wayland.windowManager.hyprland.plugins = [
     pkgs.hyprlandPlugins.hyprtrails
-    inputs.hyprgrass.packages.${pkgs.system}.default
+    pkgs.hyprlandPlugins.hyprgrass
   ];
   home.stateVersion = "24.11";
 }
