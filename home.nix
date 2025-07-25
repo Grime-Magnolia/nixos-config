@@ -10,8 +10,8 @@
   # the Home Manager release notes for a list of state version
   # changes in each release.
   
-  wayland.windowManager.hyprland.plugins = with pkgs; [
-    hyprlandPlugins.hyprtrails
+  wayland.windowManager.hyprland.plugins = [
+    pkgs.hyprlandPlugins.hyprtrails
     inputs.hyprgrass.packages.${pkgs.system}.default
   ];
   home.stateVersion = "24.11";
