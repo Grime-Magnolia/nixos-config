@@ -35,7 +35,7 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.tygo = import ./home.nix {
-                inherit pkgs hyprland
+                inherit pkgs hyprland;
               };
             }
             {
@@ -43,6 +43,11 @@
                 system = "x86_64-linux";
                 config.allowUnfree = true;
               };
+              _module.args.pkgs= import nixpkgs {
+                system = "x86_64-linux";
+                config.allowUnfree = true;
+              };
+              hyprland = hyprland;
             }
           ];
         };
