@@ -295,6 +295,7 @@
       wvkbd
       # Image and Video management
       freetube
+      libinput-gestures
       helvum
       avizo
       rofi
