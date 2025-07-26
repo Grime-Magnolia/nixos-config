@@ -1,4 +1,4 @@
-{ inputs, config, pkgs, hyprland, ... }:
+{ inputs, config, pkgs, ... }:
 
 {
   # This value determines the Home Manager release that your
@@ -12,7 +12,9 @@
   
   wayland.windowManager.hyprland = {
     enable = true ;
-    package = hyprland.packages.${pkgs.system}.hyprland;
+    settings = {
+        source = "initializer.conf";
+      };
     plugins = [
       pkgs.hyprlandPlugins.hyprtrails
       pkgs.hyprlandPlugins.hyprgrass
