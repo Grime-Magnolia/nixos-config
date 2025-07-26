@@ -296,6 +296,8 @@
       # Image and Video management
       freetube
       libinput-gestures
+      wtype
+      xdotool
       helvum
       avizo
       rofi
