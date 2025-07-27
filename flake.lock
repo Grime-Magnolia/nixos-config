@@ -33,6 +33,24 @@
         "type": "github"
       }
     },
+    "fcitx-virtualkeyboard-adapter": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1730255698,
+        "narHash": "sha256-B9mOaEzxKZzJJyIpYPxfrgmU+Z/7XB0r0ETWtVppBEA=",
+        "owner": "horriblename",
+        "repo": "fcitx-virtualkeyboard-adapter",
+        "rev": "35d018b830acb1da934835c431273be352f670bc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "horriblename",
+        "repo": "fcitx-virtualkeyboard-adapter",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -177,7 +195,7 @@
         "hyprlang": "hyprlang",
         "hyprutils": "hyprutils",
         "hyprwayland-scanner": "hyprwayland-scanner",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": "nixpkgs_2",
         "pre-commit-hooks": "pre-commit-hooks",
         "systems": "systems_2",
         "xdph": "xdph"
@@ -370,6 +388,19 @@
     },
     "nixpkgs": {
       "locked": {
+        "lastModified": 1703637592,
+        "narHash": "sha256-8MXjxU0RfFfzl57Zy3OfXCITS0qWDNLzlBAdwxGZwfY=",
+        "path": "/nix/store/lf2dq57rqn8d03ybrxxi6l8gg27a4av0-source",
+        "rev": "cfc3698c31b1fb9cdcf10f36c9643460264d0ca8",
+        "type": "path"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
         "lastModified": 1752687322,
         "narHash": "sha256-RKwfXA4OZROjBTQAl9WOZQFm7L8Bo93FQwSJpAiSRvo=",
         "owner": "NixOS",
@@ -384,7 +415,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_2": {
+    "nixpkgs_3": {
       "locked": {
         "lastModified": 1753250450,
         "narHash": "sha256-i+CQV2rPmP8wHxj0aq4siYyohHwVlsh40kV89f3nw1s=",
@@ -425,10 +456,11 @@
     },
     "root": {
       "inputs": {
+        "fcitx-virtualkeyboard-adapter": "fcitx-virtualkeyboard-adapter",
         "flake-utils": "flake-utils",
         "home-manager": "home-manager",
         "hyprland": "hyprland",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs_3",
         "unstable": "unstable"
       }
     },

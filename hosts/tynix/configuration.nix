@@ -273,7 +273,7 @@
   users.users.tygo = {
     isNormalUser = true;
     description = "Tygo";
-    extraGroups = [ "networkmanager" "wheel" "video"];
+    extraGroups = [ "networkmanager" "input" "wheel" "video"];
     shell = pkgs.fish;
     packages = with pkgs; [
       # Games
@@ -309,6 +309,7 @@
       lutris
       bitwarden-desktop
       wireguard-tools
+      libnotify
       gphoto2
       audacity
       gimp
