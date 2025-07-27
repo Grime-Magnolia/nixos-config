@@ -8,7 +8,6 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     hyprland.url = "github:hyprwm/Hyprland";
-    fcitx-virtualkeyboard-adapter.url = "github:horriblename/fcitx-virtualkeyboard-adapter";
   };
 
   outputs = { self, nixpkgs, flake-utils, hyprland, home-manager, unstable, ... }:
