@@ -278,6 +278,7 @@
     packages = with pkgs; [
       # Games
       gamemode
+      godot
       steam-devices-udev-rules
       superTuxKart
       dualsensectl
