@@ -30,6 +30,12 @@
   # Networking stuff
   networking.hostName = "Tynix"; # Define your hostname.
   networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
+  networking.useDHCP = true;
+  networking.networkmanager.enable = true;
+  networking.networkmanager.connectionCheck = {
+    enable = true;
+    uri = "http://nmcheck.gnome.org/check_network_status.txt"    
+  };
   
   # Printing
   services.printing.enable = true;
@@ -88,6 +94,7 @@
     jellyfin.enable = true;
     jellyfin.group = "arr";
     jellyseerr.enable = true;
+    resolved.enable = true;
     libinput.enable = true;
   };
   programs.fish.enable = true;
