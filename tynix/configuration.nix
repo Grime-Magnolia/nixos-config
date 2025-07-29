@@ -34,7 +34,7 @@
   networking.networkmanager.enable = true;
   networking.networkmanager.connectionCheck = {
     enable = true;
-    uri = "http://nmcheck.gnome.org/check_network_status.txt"    
+    uri = "http://nmcheck.gnome.org/check_network_status.txt";
   };
   
   # Printing
