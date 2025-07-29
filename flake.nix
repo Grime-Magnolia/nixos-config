@@ -28,8 +28,8 @@
         tynix = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ./hosts/tynix/configuration.nix
-            ./hosts/tynix/hardware-configuration.nix
+            ./tynix/configuration.nix
+            ./tynix/hardware-configuration.nix
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
