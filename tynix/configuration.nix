@@ -229,7 +229,7 @@
     layout = "us";
     variant = "";
   };
-  networking.useDHCP = true;
+  #networking.useDHCP = true;
   # Enable CUPS to print documents.
   #services.printing.enable = true;
 
