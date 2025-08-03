@@ -316,7 +316,6 @@
       gamescope
       firefox
       hyprpolkitagent
-      hostapd
       mpv
       opencpn
       kitty
@@ -371,7 +370,6 @@
     gnome-disk-utility
     snixembed
     paper-gtk-theme
-    linux-wifi-hotspot
     less
     more
     loupe
