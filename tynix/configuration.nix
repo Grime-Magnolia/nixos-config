@@ -208,6 +208,7 @@
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
   programs.dconf.enable = true;
+  programs.nix-ld.enable = true;
   services.gnome.core-apps.enable = false;
   environment.gnome.excludePackages = with pkgs; [
     decibels
