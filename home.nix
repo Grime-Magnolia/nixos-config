@@ -16,7 +16,6 @@
         source = "initializer.conf";
       };
     plugins = [
-      pkgs.hyprlandPlugins.hyprtrails
       pkgs.hyprlandPlugins.hyprgrass
     ];
   };
