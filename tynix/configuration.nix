@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, unstable, ... }:
+{ config, pkgs, unstable, inputs, ... }:
 
 {
   imports =
@@ -18,17 +18,29 @@
       experimental-features = nix-command flakes
     '';
   };
+  # Auto updates
+  system.autoUpgrade = {
+    enable = true;
+    flake = inputs.self.outPath;
+    flags = [
+      "--print-build-logs"
+    ];
+    dates = "02:00";
+    randomizedDelaySec = "45min";
+  };
+  # Remove garbage
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   
-  # Auto upgrades
-  system.autoUpgrade.enable = true;
-  system.autoUpgrade.channel = "https://channels.nixos.org/nixos-24.05";
-
   # Networking stuff
-  networking.hostName = "Tynix"; # Define your hostname.
+  networking.hostName = "tynix"; # Define your hostname.
   networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true;
   
@@ -69,6 +81,7 @@
   '';
   # *Arr stack
   services = {
+    fwupd.enable = true;
     transmission.enable = true;
     transmission.group="arr";
     prowlarr.enable = true;
@@ -202,13 +215,22 @@
     mplus-outline-fonts.githubRelease
     nerd-fonts.caskaydia-cove
   ];
+
+  # Fingerprint shit
+  systemd.services.fprintd = {
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig.Type = "simple";
+  };
+  services.fprintd = {
+    enable = true;
+  }; 
+
   fonts.fontDir.enable = true;
   services.power-profiles-daemon.enable = true;
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
   programs.dconf.enable = true;
-  programs.nix-ld.enable = true;
   services.gnome.core-apps.enable = false;
   environment.gnome.excludePackages = with pkgs; [
     decibels
@@ -279,6 +301,7 @@
       vulkan-tools
       protonplus
       dxvk
+      nh
       #retroarch-full
       winetricks
       cava

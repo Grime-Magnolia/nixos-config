@@ -10,7 +10,7 @@
     hyprland.url = "github:hyprwm/Hyprland";
   };
 
-  outputs = { self, nixpkgs, flake-utils, hyprland, home-manager, unstable, ... }:
+  outputs = inputs@{ self, nixpkgs, flake-utils, hyprland, home-manager, unstable, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -38,9 +38,12 @@
               home-manager.backupFileExtension = null;
             }
             {
-              _module.args.unstable = import unstable {
-                system = "x86_64-linux";
-                config.allowUnfree = true;
+              _module.args = {
+                inherit inputs;
+                unstable = import unstable {
+                  system = "x86_64-linux";
+                  config.allowUnfree = true;
+                };
               };
             }
           ];
