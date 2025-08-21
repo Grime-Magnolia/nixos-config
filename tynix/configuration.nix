@@ -18,6 +18,14 @@
       experimental-features = nix-command flakes
     '';
   };
+
+  # Swap
+  swapDevices = [{
+    device = "/var/lib/swapfile";
+    size = 16*1024; # 16 GB
+  }];
+  zramSwap.enable = true;
+  
   # Auto updates
   system.autoUpgrade = {
     enable = true;
@@ -38,7 +46,15 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  
+  boot.kernelParams = [
+    "zswap.enabled=1" # enables zswap
+    "zswap.compressor=lz4" # compression algorithm
+    "zswap.max_pool_percent=50" # maximum percentage of RAM that zswap is allowed to use
+    "zswap.shrinker_enabled=1" # whether to shrink the pool proactively on high memory pressure
+  ];
+  boot.kernel.sysctl = {
+    "vm.swappiness" = 10;
+  };
   # Networking stuff
   networking.hostName = "tynix"; # Define your hostname.
   networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
