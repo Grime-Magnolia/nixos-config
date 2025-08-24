@@ -148,7 +148,7 @@
           target = "_blank";
         };
       }
-    ]
+    ];
     services = [
       {
         "*Arr" = [
