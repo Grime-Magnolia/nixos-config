@@ -25,11 +25,12 @@
       }) //
     {
       nixosConfigurations = {
-        tynix = nixpkgs.lib.nixosSystem {
+        nixtop = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ./tynix/configuration.nix
-            ./tynix/hardware-configuration.nix
+            ./general-conf.nix
+            ./nixtop/configuration.nix
+            ./nixtop/hardware-configuration.nix
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
@@ -48,6 +49,7 @@
             }
           ];
         };
+
       };
     };
 }
