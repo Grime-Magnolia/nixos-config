@@ -9,13 +9,14 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     hyprland.url = "github:hyprwm/Hyprland";
   };
-
+  
   outputs = inputs@{ self, nixpkgs, flake-utils, hyprland, home-manager, unstable, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;
+          config.permittedInsecurePackages = ["openssl-1.1.1w"];
         };
       in {
         # For use with `nix develop` or `nix run`
@@ -47,6 +48,11 @@
                 };
               };
             }
+            {
+              nixpkgs.config.permittedInsecurePackages = [
+                "openssl-1.1.1w"
+              ];
+            }
           ];
         };
         tynix = nixpkgs.lib.nixosSystem {
@@ -55,6 +61,7 @@
             ./general-conf.nix
             ./tynix/configuration.nix
             ./tynix/hardware-configuration.nix
+            ./modules/homepage.nix
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
@@ -70,6 +77,11 @@
                   config.allowUnfree = true;
                 };
               };
+            }
+            {
+              nixpkgs.config.permittedInsecurePackages = [
+                "openssl-1.1.1w"
+              ];
             }
           ];
         };
