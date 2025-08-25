@@ -8,7 +8,6 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-     # ./modules
     ];
   
   nix = {
@@ -18,7 +17,13 @@
       experimental-features = nix-command flakes
     '';
   };
-
+  homepage = {
+    enable = true;
+    sonarrkey = "d062b5c87d324705a46c84a2e9aa73c9";
+    prowlarrkey = "d912f445b19b4741ad79b83a5e89176a";
+    radarrkey = "5c5bc76e359e445a8030fc63e26c580b";
+    bazarrkey = "84a99e34c9d2a458aeba019956509747";
+  };
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -110,68 +115,6 @@
       ExecStart = "${pkgs.mullvad-vpn}/bin/mullvad-daemon";
     };
   };
-  services.homepage-dashboard = {
-    enable = true;
-    allowedHosts = "localhost:8082,127.0.0.1:8082";
-    services = [
-      {
-        "*Arr" = [
-          {
-            "Sonarr" = {
-              description = "Download and manage tv shows";
-              href = "http://localhost:8989/";
-            };
-          }
-          {
-            "Radarr" = {
-              description = "Download and manage movies";
-              href = "http://localhost:7878/";
-            };
-          }
-          {
-            "Bazarr" = {
-              description = "Download and manage subtitles";
-              href = "http://localhost:6767/";
-            };
-          }
-        ];
-      }
-      {
-        "Downloader" = [
-          {
-            "Transmission" = {
-              description = "Torrent downloader";
-              href = "http://localhost:9091/";
-            };
-          }
-          {
-            "Prowlarr" = {
-              description = "Torrent indexer";
-              href = "http://localhost:9696/";
-            };
-          }
-        ];
-      }
-      {
-	"Jellyfin" = [
-          {
-            "Jellyfin" = {
-              description = "Jellyfin Media Server";
-	            href = "http://localhost:8096/";
-	    };
-	  }
-	  {
-	    "Jellyseerr" = {
-        description = "a requests manager for Jellyfin";
-        href = "http://localhost:5055/";
-	    };
-	  }
-	];
-      }
-    ];
-  };
-
-  
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
 

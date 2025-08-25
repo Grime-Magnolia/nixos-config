@@ -30,6 +30,7 @@
           system = "x86_64-linux";
           modules = [
             ./general-conf.nix
+            ./modules/homepage.nix
             ./nixtop/configuration.nix
             ./nixtop/hardware-configuration.nix
             home-manager.nixosModules.home-manager
@@ -59,6 +60,7 @@
           system = "x86_64-linux";
           modules = [
             ./general-conf.nix
+            ./modules/homepage.nix
             ./tynix/configuration.nix
             ./tynix/hardware-configuration.nix
             ./modules/homepage.nix
