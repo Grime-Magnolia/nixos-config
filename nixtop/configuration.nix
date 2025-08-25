@@ -22,7 +22,7 @@
   homepage = {
     enable = true;
     sonarrkey = "95fd7478053e47dd89102aead48908da";
-    prowlarr = "f56dc9fb89c54c60b7e8745b63add9";
+    prowlarrkey = "f56dc9fb89c54c60b7e8745b63add9";
     radarrkey = "28e25bce8551464bade6724c6da60b0f";
     bazarrkey = "2c63ca8ebb624ae5f7df78e41a33023d";
   };
