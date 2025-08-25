@@ -235,20 +235,20 @@
         ];
       }
       {
-	"Jellyfin" = [
-    {
-      "Jellyfin" = {
-        description = "Jellyfin Media Server";
-        href = "http://localhost:8096/";
-      };
-	  }
-	  {
-	    "Jellyseerr" = {
-        description = "a requests manager for Jellyfin";
-        href = "http://localhost:5055/";
-	    };
-	  }
-	];
+        "Jellyfin" = [
+          {
+            "Jellyfin" = {
+              description = "Jellyfin Media Server";
+              href = "http://localhost:8096/";
+            };
+          }
+          {
+            "Jellyseerr" = {
+              description = "a requests manager for Jellyfin";
+              href = "http://localhost:5055/";
+            };
+          }
+        ];
       }
     ];
   };
