@@ -49,6 +49,30 @@
             }
           ];
         };
+        tynix = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./general-conf.nix
+            ./tynix/configuration.nix
+            ./tynix/hardware-configuration.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.tygo = import ./home.nix;
+              home-manager.backupFileExtension = null;
+            }
+            {
+              _module.args = {
+                inherit inputs;
+                unstable = import unstable {
+                  system = "x86_64-linux";
+                  config.allowUnfree = true;
+                };
+              };
+            }
+          ];
+        };
 
       };
     };
