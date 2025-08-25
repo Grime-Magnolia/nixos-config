@@ -300,6 +300,7 @@
       wvkbd
       gnome-calculator
       blender
+      sublime4
       # Image and Video management
       freetube
       libinput-gestures
