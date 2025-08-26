@@ -248,6 +248,7 @@
       protontricks
       handbrake
       wvkbd
+      soundconverter
       # Image and Video management
       libinput-gestures
       wtype
