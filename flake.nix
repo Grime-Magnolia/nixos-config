@@ -92,6 +92,7 @@
         modules = [
           ./bmaxnix/configuration.nix
           ./bmaxnix/hardware-configuration.nix
+          ./general-conf.nix
           {
             _module.args = {
               inherit inputs;
