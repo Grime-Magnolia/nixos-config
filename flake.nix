@@ -87,8 +87,28 @@
             }
           ];
         };
-
+      bmaxnix = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./bmaxnix/configuration.nix
+          ./bmaxnix/hardware-configuration.nix
+          {
+            _module.args = {
+              inherit inputs;
+              unstable = import unstable {
+                system = "x86_64-linux";
+                config.allowUnfree = true;
+              };
+            };
+          }
+          {
+            nixpkgs.config.permittedInsecurePackages = [
+              "openssl-1.1.1w"
+            ];
+          }
+        ];
       };
     };
+  };
 }
 
