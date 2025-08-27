@@ -14,7 +14,11 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = ["i915.enable_dc=0" "i915.enable_psr=0"];
+  boot.kernelParams = [
+    "i915.enable_dc=0" 
+    "i915.enable_psr=0"
+    "i915.force_probe=8a5c"
+  ];
   specialisation = {
     "nomodeset".configuration = {
       boot.kernelParams = config.boot.kernelParams ++ ["nomodeset"];
