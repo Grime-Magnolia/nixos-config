@@ -190,8 +190,8 @@
   fonts.fontDir.enable = true;
   services.power-profiles-daemon.enable = true;
   # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
   programs.dconf.enable = true;
   services.gnome.core-apps.enable = false;
   # Configure keymap in X11
