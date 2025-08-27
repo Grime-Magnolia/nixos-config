@@ -14,5 +14,12 @@ in {
     programs.fish.enable = true;
     users.defaultUserShell = pkgs.fish;
     system.copySystemConfiguration = true;
+    nix = {
+      package = pkgs.nixVersions.stable;
+
+      extraOptions = ''
+        experimental-features = nix-command flakes
+      '';
+    };
   };
 }
