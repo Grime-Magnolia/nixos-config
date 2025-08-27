@@ -10,6 +10,9 @@ in {
   config = lib.mkIf cfg.enable {
     environment.systemPackages = config.environment.systemPackages ++ (with pkgs; [
       kitty
+      git
+      bat
+      neovim
     ]);
     programs.fish.enable = true;
     users.defaultUserShell = pkgs.fish;
