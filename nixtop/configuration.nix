@@ -249,6 +249,8 @@
       handbrake
       wvkbd
       soundconverter
+      freac
+      flac
       # Image and Video management
       libinput-gestures
       wtype
