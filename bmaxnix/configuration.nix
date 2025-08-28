@@ -18,16 +18,22 @@
     "i915.enable_dc=0" 
     "i915.enable_psr=0"
     "i915.force_probe=8a5c"
+    "video=1280x720@60,1920x1080@60,1680x1050@60"
+    "module_blacklist=simpledrm"
+    "drm.debug=0x1e"
+    "log_buf_len=4M"
+    "i915.modeset=1"
   ];
   specialisation = {
     "nomodeset".configuration = {
-      boot.kernelParams = config.boot.kernelParams ++ ["nomodeset"];
+      boot.kernelParams = lib.mkAfter ["nomodeset"];
     };
   };
   networking.hostName = "bmaxnix"; # Define your hostname.
 
   # Configure network connections interactively with nmcli or nmtui.
   networking.networkmanager.enable = true;
+  hardware.enableRedistributableFirmware = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
