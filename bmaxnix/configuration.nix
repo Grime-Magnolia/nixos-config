@@ -14,16 +14,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = [
-    "i915.enable_dc=0" 
-    "i915.enable_psr=0"
-    "i915.force_probe=8a5c"
-    "video=1280x720@60,1920x1080@60,1680x1050@60"
-    #"module_blacklist=simpledrm"
-    "drm.debug=0x1e"
-    "log_buf_len=4M"
-    "i915.modeset=1"
-  ];
+  boot.kernelParams = [  ];
   specialisation = {
     "nomodeset".configuration = {
       boot.kernelParams = lib.mkAfter ["nomodeset"];
@@ -51,6 +42,7 @@
       "wheel" # Enable ‘sudo’ for the user.
       "networkmanager" # Enables a posibility to 
       "video"
+      "render"
     ]; 
   };
 
@@ -59,8 +51,15 @@
   environment.systemPackages = with pkgs; [
      neovim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
      wget
+     intel-media-driver
+     libva-utils
+     ffmpeg-full
   ];
-
+  environment.variables = {
+    LIBVA_DRIVER_NAME = "iHD";
+    LIBVA_DRIVERS_PATH = "${pkgs.intel-media-driver}/lib/dri";
+    LIBVA_DEFAULT_DEVICE = "/dev/dri/renderD128";
+  };
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 

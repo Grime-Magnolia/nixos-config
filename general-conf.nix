@@ -14,9 +14,11 @@ in {
       bat
       neovim
       starship
+      nh
     ]);
     programs.fish.enable = true;
     users.defaultUserShell = pkgs.fish;
+    services.fwupd.enable = true;
     # wont work with flakes
     # system.copySystemConfiguration = true;
     nix = {
