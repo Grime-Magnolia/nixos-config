@@ -42,7 +42,7 @@
   i18n.defaultLocale = "en_US.UTF-8";
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-  services.xserver.videoDrivers = [ "intel" ];
+  services.xserver.videoDrivers = [ "modesetting" ];
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.tygo = {
