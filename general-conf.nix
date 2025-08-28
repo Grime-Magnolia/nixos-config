@@ -8,15 +8,17 @@ in {
     
   };
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = config.environment.systemPackages ++ (with pkgs; [
+    environment.systemPackages = lib.mkAfter (with pkgs; [
       kitty
       git
       bat
       neovim
+      starship
     ]);
     programs.fish.enable = true;
     users.defaultUserShell = pkgs.fish;
-    system.copySystemConfiguration = true;
+    # wont work with flakes
+    # system.copySystemConfiguration = true;
     nix = {
       package = pkgs.nixVersions.stable;
 
