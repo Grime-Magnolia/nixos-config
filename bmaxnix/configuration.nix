@@ -14,7 +14,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = [  ];
+  boot.kernelParams = [
+    "i915.force_probe=8a5c"
+  ];
   specialisation = {
     "nomodeset".configuration = {
       boot.kernelParams = lib.mkAfter ["nomodeset"];
@@ -34,7 +36,14 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.videoDrivers = [ "modesetting" ];
-
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      # For modern Intel CPU's
+      intel-media-driver # Enable Hardware Acceleration
+      vpl-gpu-rt # Enable QSV
+    ];
+  };
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.tygo = {
     isNormalUser = true;
