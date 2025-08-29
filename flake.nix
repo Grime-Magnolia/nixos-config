@@ -12,6 +12,9 @@
   };
   
   outputs = inputs@{ self, nixpkgs, flake-utils, hyprland, home-manager, unstable, ... }:
+    overlays.default = final: prev: {
+      mystnode = prev.callPackage ./custompackages/mystnode/myst.nix
+    };
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
