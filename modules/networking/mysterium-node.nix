@@ -1,4 +1,4 @@
-{lib,pkgs,config,lib,...}:
+{lib,pkgs,config,...}:
 with lib;
 let
   cfg = config.services.mysterium-node;

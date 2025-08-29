@@ -223,6 +223,7 @@
   # services.xserver.desktopManager.retroarch.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.groups.arr.members = ["bazarr" "jellyfin" "lidarr" "radarr" "sonarr" "transmission" "tygo"];
+  services.mysterium-node.enable = true;
   users.users.tygo = {
     isNormalUser = true;
     description = "Tygo";
@@ -230,6 +231,7 @@
     shell = pkgs.fish;
     packages = with pkgs; [
       # Games
+      myst
       gamemode
       godot
       steam-devices-udev-rules

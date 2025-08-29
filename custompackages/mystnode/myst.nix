@@ -1,4 +1,4 @@
-{ stdenv, ... }:
+{ stdenv, lib, ... }:
 
 let
   version = "1.35.4";
@@ -16,4 +16,10 @@ stdenv.mkDerivation {
     mkdir $out/bin -p
     cp myst myst_supervisor $out/bin
   '';
+  meta = with lib; {
+    description = "Mysterium VPN node";
+    homepage = "https://github.com/mysteriumnetwork/node";
+    license = licenses.mpl20;
+    platforms = [ "x86_64-linux" ];
+  };
 }
