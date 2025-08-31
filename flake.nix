@@ -13,23 +13,25 @@
   
   outputs = inputs@{ self, nixpkgs, flake-utils, hyprland, home-manager, unstable, ... }:
     let
+      system = "x86_64-linux";
       nixosModules = {
-        default = import "${self}/modules/networking/mysterium-node.nix";
+        #default = import "${self}/modules/networking/mysterium-node.nix";
       };
       customModules = builtins.attrValues self.nixosModules;
       withCustomModules = modules: modules ++ builtins.attrValues nixosModules;
+      #myst-overlay = self: super: {};
+      pkgsFor = system: import nixpkgs {
+        inherit system;
+        overlays = [ ];
+        config.allowUnfree = true;
+        config.permittedInsecurePackages = [
+          "openssl-1.1.1w"
+        ];
+      };
+      pkgs = pkgsFor system;
     in 
-      flake-utils.lib.eachDefaultSystem (system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays.default = final: prev: {
-              myst = prev.callPackage ./custompackages/mystnode/myst.nix;
-            };
-            config.allowUnfree = true;
-            config.permittedInsecurePackages = ["openssl-1.1.1w"];
-          };
-        in {
+      flake-utils.lib.eachDefaultSystem (system:       
+        {
           # For use with `nix develop` or `nix run`
           devShell = pkgs.mkShell {
             buildInputs = with pkgs; [ git nixfmt ];
@@ -37,7 +39,8 @@
         }) // {
         nixosConfigurations = {
           nixtop = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
+            inherit system;
+            inherit pkgs;
             modules = withCustomModules [
               ./general-conf.nix
               ./modules/homepage.nix
@@ -59,15 +62,11 @@
                   };
                 };
               }
-              {
-                nixpkgs.config.permittedInsecurePackages = [
-                  "openssl-1.1.1w"
-                ];
-              }
             ];
           };
           tynix = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
+            inherit system;
+            inherit pkgs;
             modules = [
               ./general-conf.nix
               ./modules/homepage.nix
@@ -90,15 +89,11 @@
                   };
                 };
               }
-              {
-                nixpkgs.config.permittedInsecurePackages = [
-                  "openssl-1.1.1w"
-                ];
-              }
             ];
           };
         bmaxnix = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
+          inherit system;
+          inherit pkgs;
           modules = [
             ./bmaxnix/configuration.nix
             ./bmaxnix/hardware-configuration.nix
@@ -111,11 +106,6 @@
                   config.allowUnfree = true;
                 };
               };
-            }
-            {
-              nixpkgs.config.permittedInsecurePackages = [
-                "openssl-1.1.1w"
-              ];
             }
           ];
         };

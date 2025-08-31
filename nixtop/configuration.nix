@@ -77,9 +77,6 @@
     openFirewall = true;
   };
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nixpkgs.config.packageOverrides = pkgs: {
-    intel-vaapi-driver = pkgs.intel-vaapi-driver.override { enableHybridCodec = true; };
-  };
   environment.sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; }; # Force intel-media-driver
   hardware.graphics = { # hardware.graphics since NixOS 24.11
     enable = true;
@@ -223,7 +220,6 @@
   # services.xserver.desktopManager.retroarch.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.groups.arr.members = ["bazarr" "jellyfin" "lidarr" "radarr" "sonarr" "transmission" "tygo"];
-  services.mysterium-node.enable = true;
   users.users.tygo = {
     isNormalUser = true;
     description = "Tygo";
@@ -231,7 +227,6 @@
     shell = pkgs.fish;
     packages = with pkgs; [
       # Games
-      myst
       gamemode
       godot
       steam-devices-udev-rules
@@ -296,9 +291,6 @@
     user = "ollama";
     group = "ollama";
   };
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
