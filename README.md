@@ -16,6 +16,8 @@ specs
 - Intel(R) Core(TM) i5-7200U (4) @ 3.10 GHz
 - Intel HD Graphics 620 @ 1.00 GHz [Integrated]
 - 1 TB m.2 SSD
+### Bmaxnix
+> my bmax 6 pro/plus mini pc
 ## Webapps
 ### My Arrtack
 - Sonarr
