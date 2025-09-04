@@ -1,5 +1,6 @@
 # my Nixos config
-## Tynix
+## my machines
+### Tynix
 > this is my nixos config for my pc 
 specs
 - RX 6750 XT with rocm on ollama
@@ -7,7 +8,7 @@ specs
 - 16gb of ddr4 ram
 - and ofcourse Nixos
 
-## Nixtop
+### Nixtop
 > My nixos laptop
 specs
 - HP EliteBook x360 1030 G2
@@ -15,5 +16,16 @@ specs
 - Intel(R) Core(TM) i5-7200U (4) @ 3.10 GHz
 - Intel HD Graphics 620 @ 1.00 GHz [Integrated]
 - 1 TB m.2 SSD
+## Webapps
+### the arrstack
+- Sonarr
+- Radarr
+- Bazarr
+- Prowlarr
+- Lidarr (Why the fuck is this still not working????)
+### Downloaders
+- Transmission
+### Homepage
+> I think you guessed it already it is called Homepage :)
 ## Stats
 ![Alt](https://repobeats.axiom.co/api/embed/6df55596c911880937e2f2561b193ba696df4dce.svg "Repobeats analytics image")
