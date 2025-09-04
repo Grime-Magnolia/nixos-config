@@ -45,8 +45,8 @@
             modules = withCustomModules [
               ./general-conf.nix
               ./modules/homepage.nix
-              ./nixtop/configuration.nix
-              ./nixtop/hardware-configuration.nix
+              ./machines/nixtop/configuration.nix
+              ./machines/nixtop/hardware-configuration.nix
               home-manager.nixosModules.home-manager
               {
                 home-manager.useGlobalPkgs = true;
@@ -71,8 +71,8 @@
             modules = [
               ./general-conf.nix
               ./modules/homepage.nix
-              ./tynix/configuration.nix
-              ./tynix/hardware-configuration.nix
+              ./machines/tynix/configuration.nix
+              ./machines/tynix/hardware-configuration.nix
               ./modules/homepage.nix
               home-manager.nixosModules.home-manager
               {
@@ -96,8 +96,8 @@
           inherit system;
           inherit pkgs;
           modules = [
-            ./bmaxnix/configuration.nix
-            ./bmaxnix/hardware-configuration.nix
+            ./machines/bmaxnix/configuration.nix
+            ./machines/bmaxnix/hardware-configuration.nix
             ./general-conf.nix
             {
               _module.args = {
