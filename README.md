@@ -17,7 +17,7 @@ specs
 - Intel HD Graphics 620 @ 1.00 GHz [Integrated]
 - 1 TB m.2 SSD
 ## Webapps
-### the arrstack
+### My Arrtack
 - Sonarr
 - Radarr
 - Bazarr
