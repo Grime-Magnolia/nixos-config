@@ -16,6 +16,7 @@
       system = "x86_64-linux";
       nixosModules = {
         #default = import "${self}/modules/networking/mysterium-node.nix";
+        flatpak = import ./modules/flatpak.nix;
       };
       customModules = builtins.attrValues self.nixosModules;
       withCustomModules = modules: modules ++ builtins.attrValues nixosModules;
