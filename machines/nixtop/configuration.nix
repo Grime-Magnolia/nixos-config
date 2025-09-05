@@ -26,7 +26,7 @@
     radarrkey = "28e25bce8551464bade6724c6da60b0f";
     bazarrkey = "2c63ca8ebb624ae5f7df78e41a33023d";
   };
-
+  general.enable = true;
   # Swap
   swapDevices = [{
     device = "/var/lib/swapfile";
@@ -215,7 +215,6 @@
     # no need to redefine it in your config for now)
     #media-session.enable = true;
   };
-
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.desktopManager.retroarch.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
