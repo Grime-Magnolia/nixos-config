@@ -17,12 +17,12 @@
       experimental-features = nix-command flakes
     '';
   };
-  homepage = {
+  arr = {
     enable = true;
-    sonarrkey = "d062b5c87d324705a46c84a2e9aa73c9";
-    prowlarrkey = "d912f445b19b4741ad79b83a5e89176a";
-    radarrkey = "5c5bc76e359e445a8030fc63e26c580b";
-    bazarrkey = "84a99e34c9d2a458aeba019956509747";
+    sonarr.key = "d062b5c87d324705a46c84a2e9aa73c9";
+    prowlarr.key = "d912f445b19b4741ad79b83a5e89176a";
+    radarr.key = "5c5bc76e359e445a8030fc63e26c580b";
+    bazarr.key = "84a99e34c9d2a458aeba019956509747";
   };
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
