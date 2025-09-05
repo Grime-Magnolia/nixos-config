@@ -19,12 +19,12 @@
     '';
   };
   # homepage-dashboard
-  homepage = {
+  arr = {
     enable = true;
-    sonarrkey = "95fd7478053e47dd89102aead48908da";
-    prowlarrkey = "a61160856c3242dc9fb17332d0c814fa";
-    radarrkey = "28e25bce8551464bade6724c6da60b0f";
-    bazarrkey = "2c63ca8ebb624ae5f7df78e41a33023d";
+    sonarr.key = "95fd7478053e47dd89102aead48908da";
+    prowlarr.key = "a61160856c3242dc9fb17332d0c814fa";
+    radarr.key = "28e25bce8551464bade6724c6da60b0f";
+    bazarr.key = "2c63ca8ebb624ae5f7df78e41a33023d";
   };
   general.enable = true;
   # Swap
@@ -67,7 +67,6 @@
   networking.hostName = "nixtop"; # Define your hostname.
   networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true;
-  
   # Printing
   services.printing.enable = true;
   services.printing.webInterface = false;
@@ -103,19 +102,6 @@
   # *Arr stack
   services = {
     fwupd.enable = true;
-    transmission.enable = true;
-    transmission.group="arr";
-    prowlarr.enable = true;
-    flaresolverr.enable = true;
-    sonarr.enable = true;
-    sonarr.group="arr";
-    bazarr.enable = true;
-    bazarr.group="arr";
-    radarr.enable = true;
-    radarr.group = "arr";
-    jellyfin.enable = true;
-    jellyfin.group = "arr";
-    jellyseerr.enable = true;
     resolved.enable = true;
     libinput.enable = true;
   };
@@ -284,7 +270,6 @@
     ];
   };
 
-  services.xserver.desktopManager.kodi.enable = true;
   # Ollama
   services.ollama = {
     enable = true;
