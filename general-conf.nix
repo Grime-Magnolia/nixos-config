@@ -22,12 +22,5 @@ in {
     services.fwupd.enable = true;
     # wont work with flakes
     # system.copySystemConfiguration = true;
-    nix = {
-      package = pkgs.nixVersions.stable;
-
-      extraOptions = ''
-        experimental-features = nix-command flakes
-      '';
-    };
   };
 }
