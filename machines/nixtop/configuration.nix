@@ -241,10 +241,12 @@
       #retroarch-full
       winetricks
       cava
-      nixos-generators
+      ghidra
+      #nixos-generators
       protontricks
       handbrake
       wvkbd
+      p7zip
       soundconverter
       freac
       flac
