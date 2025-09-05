@@ -44,7 +44,7 @@
             inherit pkgs;
             modules = withCustomModules [
               ./general-conf.nix
-              ./modules/homepage.nix
+              ./modules/arrstack
               ./machines/nixtop/configuration.nix
               ./machines/nixtop/hardware-configuration.nix
               home-manager.nixosModules.home-manager
@@ -70,7 +70,7 @@
             inherit pkgs;
             modules = [
               ./general-conf.nix
-              ./modules/homepage.nix
+              ./modules/arrstack
               ./machines/tynix/configuration.nix
               ./machines/tynix/hardware-configuration.nix
               ./modules/homepage.nix
