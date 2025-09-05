@@ -10,6 +10,7 @@ in {
   config = lib.mkIf cfg.enable {
     environment.systemPackages = lib.mkAfter (with pkgs; [
       kitty
+      colordiff
       git
       bat
       neovim
