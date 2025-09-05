@@ -1,74 +1,79 @@
 { config, pkgs, lib, inputs, ... }:
 let
-  cfg = config.homepage;
+  cfg = config.arr;
+  mkDisableOption = description:(lib.mkOption {
+      default = true;
+      type = lib.types.bool;
+      inherit description;
+    }
+  );
+  mkStrOption = description:(lib.mkOption {
+      default = "";
+      type = lib.types.str;
+      inherit description;
+    }
+  );
+  betterif = condition: list: (if condition then list else []);
 in 
 {
-  options = {
-    homepage.enable = lib.mkEnableOption "Enable the homepage dashboard module";
-
-    homepage.sonarrkey = lib.mkOption {
-      type = lib.types.str;
-      default = "";
-      description = "Sonarr API key";
+  options.arr = rec {
+    # Enable options
+    enable = lib.mkEnableOption "Enable the Arr module";
+    homepage.enable = mkDisableOption "Enable homepage";
+    sonarr = {
+      enable = mkDisableOption "Enable Sonarr";
+      key = mkStrOption "Sonarr key";
     };
-
-    homepage.radarrkey = lib.mkOption {
-      type = lib.types.str;
-      default = "";
-      description = "Radarr API key";
+    bazarr = {
+      enable = mkDisableOption "Enable Bazarr";
+      key = mkStrOption "Bazarr key";
     };
-
-    homepage.bazarrkey = lib.mkOption {
-      type = lib.types.str;
-      default = "";
-      description = "Bazarr API key";
+    radarr = {
+      enable = mkDisableOption "Enable Radarr";
+      key = mkStrOption "Radarr key";
     };
-
-    homepage.prowlarrkey = lib.mkOption {
-      type = lib.types.str;
-      default = "";
-      description = "Prowlarr API key";
+    prowlarr = {
+      enable = mkDisableOption "Enable Prowlarr";
+      key = mkStrOption "Prowlarr key";
     };
-    homepage.Jellyfin = lib.mkOption {
-      default = true;
-      type = lib.types.bool;
-      description = "Enables Jellyfin";
+    jellyfin = {
+      enable = mkDisableOption "Enable Jellyfin";
+      key = mkStrOption "Jellyfin key";
     };
-    homepage.Jellyseerr = lib.mkOption {
-      default = true;
-      type = lib.types.bool;
-      description = "Enables Jellyseerr";
-    };
-    homepage.Radarr = lib.mkOption {
-      default = true;
-      type = lib.types.bool;
-      description = "Enables Radarr";
-    };
-    homepage.Sonarr = lib.mkOption {
-      default = true;
-      type = lib.types.bool;
-      description = "Enables Sonarr";
-    };
-    homepage.Bazarr = lib.mkOption {
-      default = true;
-      type = lib.types.bool;
-      description = "Enables Bazarr";
-    };
-    homepage.Transmission = lib.mkOption {
-      default = true;
-      type = lib.types.bool;
-      description = "Enables Transmission";
-    };
-    homepage.Prowlarr = lib.mkOption {
-      default = true;
-      type = lib.types.bool;
-      description = "Enables Prowlarr";
-    };
+    flaresolverr.enable = mkDisableOption "Enable flaresolverr";
+    transmission.enable = mkDisableOption "Enable transmission";
+    jellyseerr.enable = mkDisableOption "Enable jellyseerr";
   };
 
-  config = lib.mkIf config.homepage.enable with lib; {
-    #services.prowlarr = mkIf
-    services.homepage-dashboard = {
+  config = lib.mkIf cfg.enable {
+    # Arr apps
+    services = {
+      prowlarr.enable = cfg.prowlarr.enable;
+      flaresolverr.enable = cfg.flaresolverr.enable || cfg.prowlarr.enable;
+      transmission = lib.mkIf cfg.transmission.enable {
+        enable = true;
+        group="arr";
+      };
+      sonarr = lib.mkIf cfg.sonarr.enable {
+        enable = true;
+        group="arr";
+      };
+      bazarr = lib.mkIf cfg.bazarr.enable {
+        enable = true;
+        group="arr";
+      };
+      radarr = lib.mkIf cfg.radarr.enable {
+        enable = true;
+        group="arr";
+      };
+      jellyfin = lib.mkIf cfg.jellyfin.enable {
+        enable = true;
+        group="arr";
+      };
+      jellyseerr.enable = cfg.jellyseerr.enable;
+    };
+
+    services.homepage-dashboard = lib.mkIf cfg.homepage.enable {
       enable = true;
       allowedHosts = "localhost:8082,127.0.0.1:8082";
       widgets = [
@@ -99,8 +104,8 @@ in
           };
         }
       ];
-      services = [] ++ (if (cfg.Sonarr || cfg.Radarr || cfg.Bazarr) then [{
-          "*Arr" = [] ++ (if cfg.Sonarr then [
+      services = [] ++ (betterif (cfg.sonarr.enable || cfg.radarr.enable || cfg.bazarr.enable) [{
+          "*Arr" = [] ++ (betterif cfg.sonarr.enable [
               {
                 "Sonarr" = {
                   description = "Download and manage tv shows";
@@ -108,11 +113,11 @@ in
                   widget = {
                     type = "sonarr";
                     url = "http://localhost:8989";
-                    key = config.homepage.sonarrkey;
+                    key = cfg.sonarr.key;
                   };
                 };
               }
-            ] else []) ++ (if cfg.Radarr then [
+            ]) ++ (betterif cfg.radarr.enable [
               {
                 "Radarr" = {
                   description = "Download and manage movies";
@@ -120,11 +125,11 @@ in
                   widget = {
                     type = "radarr";
                     url = "http://localhost:7878/";
-                    key = config.homepage.radarrkey;
+                    key = cfg.radarr.key;
                   };
                 };
               }
-            ] else []) ++ (if cfg.Bazarr then [
+            ]) ++ (betterif cfg.bazarr.enable [
               {
                 "Bazarr" = {
                   description = "Download and manage subtitles";
@@ -132,14 +137,14 @@ in
                   widget = {
                     type = "bazarr";
                     url = "http://localhost:6767/";
-                    key = config.homepage.bazarrkey;
+                    key = cfg.bazarr.key;
                   };
                 };
               }
-            ] else []);
-          }] else []) ++ (if (cfg.Transmission || cfg.Prowlarr) then [
+            ]);
+          }]) ++ (betterif (cfg.transmission.enable || cfg.prowlarr.enable) [
           {
-            "Downloader" = [] ++ (if cfg.Transmission then [
+            "Downloader" = [] ++ (betterif cfg.transmission.enable [
                 {
                   "Transmission" = {
                     description = "Torrent downloader";
@@ -152,7 +157,7 @@ in
                     };
                   };
                 }
-              ] else []) ++ (if cfg.Prowlarr then [
+              ]) ++ (betterif cfg.prowlarr.enable [
                 {
                   "Prowlarr" = {
                     description = "Torrent indexer";
@@ -160,33 +165,33 @@ in
                     widget = {
                       type = "prowlarr";
                       url = "http://localhost:9696/";
-                      key = config.homepage.prowlarrkey;
+                      key = cfg.prowlarr.key;
                     };
                   };
                 }
-            ] else []);
+            ]);
           }
-      ] else []) ++ (if (cfg.Jellyfin || cfg.Jellyseerr) then [
+      ]) ++ (betterif (cfg.jellyfin.enable || cfg.jellyseerr.enable) [
         {
           "Jellyfin" = []
-            ++ (if cfg.Jellyfin then [
+            ++ (betterif cfg.jellyfin.enable [
               {
                 "Jellyfin" = {
                   description = "Jellyfin Media Server";
                   href = "http://localhost:8096/";
                 };
               }
-            ] else [])
-            ++ (if cfg.Jellyseerr then [
+            ])
+            ++ (betterif cfg.jellyseerr.enable [
               {
                 "Jellyseerr" = {
                   description = "A requests manager for Jellyfin";
                   href = "http://localhost:5055/";
                 };
               }
-            ] else []);
+            ]);
         }
-      ] else []);
+      ]);
     };
   };
 }
