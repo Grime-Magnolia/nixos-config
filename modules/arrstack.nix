@@ -66,7 +66,8 @@ in
     };
   };
 
-  config = lib.mkIf config.homepage.enable {
+  config = lib.mkIf config.homepage.enable with lib; {
+    #services.prowlarr = mkIf
     services.homepage-dashboard = {
       enable = true;
       allowedHosts = "localhost:8082,127.0.0.1:8082";
