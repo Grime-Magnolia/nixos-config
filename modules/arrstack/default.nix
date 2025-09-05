@@ -7,4 +7,5 @@
   radarr = import ./radarr.nix;
   prowlarr = import ./prowlarr.nix;
   transmission = import ./transmission.nix;
+  homepage = import ./homepage.nix;
 }
