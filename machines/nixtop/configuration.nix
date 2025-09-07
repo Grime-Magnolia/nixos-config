@@ -26,6 +26,9 @@
     radarr.key = "28e25bce8551464bade6724c6da60b0f";
     bazarr.key = "2c63ca8ebb624ae5f7df78e41a33023d";
   };
+  customGlance = {
+    enable = true;
+  };
   general.enable = true;
   # Swap
   swapDevices = [{
@@ -70,6 +73,8 @@
   # Printing
   services.printing.enable = true;
   services.printing.webInterface = false;
+  services.printing.drivers = [pkgs.hplip ];
+
   services.avahi = {
     enable = true;
     nssmdns4 = true;
@@ -91,7 +96,6 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
-  services.printing.drivers = [pkgs.hplip ];
 
 
   system.activationScripts.myst-symlink.text = ''
@@ -208,7 +212,7 @@
   users.users.tygo = {
     isNormalUser = true;
     description = "Tygo";
-    extraGroups = [ "networkmanager" "input" "wheel" "video"];
+    extraGroups = [ "networkmanager" "lp" "input" "wheel" "video"];
     shell = pkgs.fish;
     packages = with pkgs; [
       # Games
