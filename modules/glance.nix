@@ -72,6 +72,7 @@ in
                       {
                         type = "local";
                         name = "Local";
+                        cpu-temp-sensor = "coretemp-isa-0000";
                       }
                     ];
                   }
@@ -84,6 +85,49 @@ in
                       "immich-app/immich"
                       "syncthing/syncthing"
                     ];
+                  }
+                ];
+              }
+            ];
+          }
+          {
+            name = "Bookmarks";
+            columns = [
+              {
+                size = "full";
+                widgets = [
+                  {
+                    type = "bookmarks";
+                    groups = [] ++ [
+                      {
+                        title = "Arrstack";
+                        links = [] ++ [
+                          {
+                            title = "Prowlarr";
+                            icon = "sh:prowlarr";
+                            url = "http://localhost:9696/";
+                          }
+                        ] ++ [
+                          {
+                            title = "Radarr";
+                            icon = "sh:radarr";
+                            url = "http://localhost:7878/";
+                          }
+                        ] ++ [
+                          {
+                            title = "Sonarr";
+                            icon = "sh:sonarr";
+                            url = "http://localhost:8989/";
+                          }
+                        ] ++ [
+                          {
+                            title = "Bazarr";
+                            icon = "sh:bazarr";
+                            url = "http://localhost:6767/"
+                          }
+                        ];
+                      }
+                    ] ++ [];
                   }
                 ];
               }
