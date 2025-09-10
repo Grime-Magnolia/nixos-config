@@ -19,7 +19,7 @@ in
   options.arr = rec {
     # Enable options
     enable = lib.mkEnableOption "Enable the Arr module";
-    homepage.enable = mkDisableOption "Enable homepage";
+    glance.enable = mkDisableOption "Enable Glance";
     sonarr = {
       enable = mkDisableOption "Enable Sonarr";
       key = mkStrOption "Sonarr key";
@@ -48,6 +48,7 @@ in
   config = lib.mkIf cfg.enable {
     # Arr apps
     services = {
+      glance.enable = true;
       prowlarr.enable = cfg.prowlarr.enable;
       flaresolverr.enable = cfg.flaresolverr.enable || cfg.prowlarr.enable;
       transmission = lib.mkIf cfg.transmission.enable {
@@ -72,126 +73,145 @@ in
       };
       jellyseerr.enable = cfg.jellyseerr.enable;
     };
-
-    services.homepage-dashboard = lib.mkIf cfg.homepage.enable {
-      enable = true;
-      allowedHosts = "localhost:8082,127.0.0.1:8082";
-      widgets = [
-        {
-          datetime = {
-            text_size = "xl";
-            format = {
-              dateStyle = "short";
-              timeStyle = "short";
-              hour12 = true;
-            };
-          };
-        }
-        {
-          resources = {
-            cpu = true;
-            disk = "/";
-            memory = true;
-            refresh = 5000;
-            network = true;
-            uptime = true;
-          };
-        }
-        {
-          search = {
-            provider = "duckduckgo";
-            target = "_blank";
-          };
-        }
-      ];
-      services = [] ++ (betterif (cfg.sonarr.enable || cfg.radarr.enable || cfg.bazarr.enable) [{
-          "*Arr" = [] ++ (betterif cfg.sonarr.enable [
-              {
-                "Sonarr" = {
-                  description = "Download and manage tv shows";
-                  href = "http://localhost:8989/";
-                  widget = {
-                    type = "sonarr";
-                    url = "http://localhost:8989";
-                    key = cfg.sonarr.key;
-                  };
-                };
-              }
-            ]) ++ (betterif cfg.radarr.enable [
-              {
-                "Radarr" = {
-                  description = "Download and manage movies";
-                  href = "http://localhost:7878/";
-                  widget = {
-                    type = "radarr";
-                    url = "http://localhost:7878/";
-                    key = cfg.radarr.key;
-                  };
-                };
-              }
-            ]) ++ (betterif cfg.bazarr.enable [
-              {
-                "Bazarr" = {
-                  description = "Download and manage subtitles";
-                  href = "http://localhost:6767/";
-                  widget = {
-                    type = "bazarr";
-                    url = "http://localhost:6767/";
-                    key = cfg.bazarr.key;
-                  };
-                };
-              }
-            ]);
-          }]) ++ (betterif (cfg.transmission.enable || cfg.prowlarr.enable) [
+    services.glance.settings.pages = [] ++ [
+      {
+        name = "Home";
+        columns = [] ++ [
           {
-            "Downloader" = [] ++ (betterif cfg.transmission.enable [
-                {
-                  "Transmission" = {
-                    description = "Torrent downloader";
-                    href = "http://localhost:9091/";
-                    widget = {
-                      type = "transmission";
-                      url = "http://localhost:9091";
-                      username = "";
-                      password = "";
-                    };
-                  };
-                }
-              ]) ++ (betterif cfg.prowlarr.enable [
-                {
-                  "Prowlarr" = {
-                    description = "Torrent indexer";
-                    href = "http://localhost:9696/";
-                    widget = {
-                      type = "prowlarr";
-                      url = "http://localhost:9696/";
-                      key = cfg.prowlarr.key;
-                    };
-                  };
-                }
-            ]);
+            size = "small";
+            widgets = [] ++ [
+              {
+                type = "calendar";
+                first-day-of-week = "monday";
+              }
+            ] ++ [
+              {
+                type = "rss";
+                limit = 10;
+                collapse-after = 3;
+                cache = "12h";
+                feeds = [] ++ [
+                  {
+                    url = "https://selfh.st/rss/";
+                    title = "selfh.st";
+                    limit = 4;
+                  }
+                ] ++ [
+                  {url = "https://ciechanow.ski/atom.xml";}
+                ] ++ [
+                  {
+                    url = "https://www.joshwcomeau.com/rss.xml";
+                    title = "Josh Comeau";
+                  }
+                ] ++ [
+                  {url = "https://samwho.dev/rss.xml";}
+                ] ++ [
+                  {
+                    url = "https://ishadeed.com/feed.xml";
+                    title = "Ahmad Shadeed";
+                  }
+                ];
+              }
+            ];
           }
-      ]) ++ (betterif (cfg.jellyfin.enable || cfg.jellyseerr.enable) [
-        {
-          "Jellyfin" = []
-            ++ (betterif cfg.jellyfin.enable [
+        ] ++ [
+          {
+            size = "full";
+            widgets = [
               {
-                "Jellyfin" = {
-                  description = "Jellyfin Media Server";
-                  href = "http://localhost:8096/";
-                };
+                type = "group";
+                widgets = [
+                  {
+                    type = "hacker-news";
+                  }
+                ] ++ [
+                  {
+                    type = "lobsters";
+                  }
+                ];
               }
-            ])
-            ++ (betterif cfg.jellyseerr.enable [
+            ];
+          }
+        ] ++ [
+          {
+            size = "small";
+            widgets = [] ++ [
               {
-                "Jellyseerr" = {
-                  description = "A requests manager for Jellyfin";
-                  href = "http://localhost:5055/";
-                };
+                type = "server-stats";
+                servers = [
+                  {
+                    type = "local";
+                    name = "Local";
+                    cpu-temp-sensor = "coretemp-isa-0000";
+                  }
+                ];
               }
-            ]);
-        }
-      ]);
-    };
+            ] ++ [
+              {
+                type = "releases";
+                cache = "1d";
+                repositories = [] ++ [
+                  "glanceapp/glance"
+                ] ++ [
+                  "go-gitea/gitea"
+                ] ++ [
+                  "immich-app/immich"
+                ] ++ [
+                  "syncthing/syncthing"
+                ];
+              }
+            ] ++ [
+              {
+                type = "bookmarks";
+                groups = [] ++ (betterif (cfg.prowlarr.enable || 
+                                cfg.radarr.enable || 
+                                cfg.sonarr.enable || 
+                                cfg.bazarr.enable) [
+                  {
+                    title = "Arrstack";
+                    links = [] ++ (betterif cfg.prowlarr.enable [
+                      {
+                        title = "Prowlarr";
+                        icon = "sh:prowlarr";
+                        url = "http://localhost:9696/";
+                      }
+                    ]) ++ (betterif cfg.radarr.enable [
+                      {
+                        title = "Radarr";
+                        icon = "sh:radarr";
+                        url = "http://localhost:7878/";
+                      }
+                    ]) ++ (betterif cfg.sonarr.enable [
+                      {
+                        title = "Sonarr";
+                        icon = "sh:sonarr";
+                        url = "http://localhost:8989/";
+                      }
+                    ]) ++ (betterif cfg.bazarr.enable [
+                      {
+                        title = "Bazarr";
+                        icon = "sh:bazarr";
+                        url = "http://localhost:6767/";
+                      }
+                    ]);
+                  }
+                ]) ++ (betterif cfg.transmission.enable [
+                  {
+                    title = "Downloaders";
+                    links = [] ++ [
+                      {
+                        title = "Transmission";
+                        icon = "sh:transmission";
+                        url = "http://localhost:9091/";
+                      }
+                    ];
+                  }
+                ]);
+              }
+            ];
+          }
+        ];
+      }
+    ] ++ [];
   };
 }
