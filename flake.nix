@@ -17,7 +17,6 @@
       nixosModules = {
         #default = import "${self}/modules/networking/mysterium-node.nix";
         flatpak = import ./modules/flatpak.nix;
-        glance = import ./modules/glance.nix;
       };
       customModules = builtins.attrValues self.nixosModules;
       withCustomModules = modules: modules ++ builtins.attrValues nixosModules;
