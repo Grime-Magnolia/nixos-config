@@ -123,7 +123,7 @@ in
                           {
                             title = "Bazarr";
                             icon = "sh:bazarr";
-                            url = "http://localhost:6767/"
+                            url = "http://localhost:6767/";
                           }
                         ];
                       }
