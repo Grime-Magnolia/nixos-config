@@ -21,13 +21,11 @@
   # homepage-dashboard
   arr = {
     enable = true;
+    glance.enable = true;
     sonarr.key = "95fd7478053e47dd89102aead48908da";
     prowlarr.key = "a61160856c3242dc9fb17332d0c814fa";
     radarr.key = "28e25bce8551464bade6724c6da60b0f";
     bazarr.key = "2c63ca8ebb624ae5f7df78e41a33023d";
-  };
-  customGlance = {
-    enable = true;
   };
   general.enable = true;
   # Swap
