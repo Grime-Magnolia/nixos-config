@@ -149,7 +149,7 @@ in
             ] ++ [
               {
                 type = "releases";
-                cache = "1d";
+                cache = "12h";
                 repositories = [] ++ [
                   "glanceapp/glance"
                 ] ++ [
@@ -162,51 +162,37 @@ in
               }
             ] ++ [
               {
-                type = "bookmarks";
-                groups = [] ++ (betterif (cfg.prowlarr.enable || 
-                                cfg.radarr.enable || 
-                                cfg.sonarr.enable || 
-                                cfg.bazarr.enable) [
+                type = "monitor";
+                title = "Services";
+                sites = [] ++ (betterif (cfg.prowlarr.enable) [{
+                    title = "Prowlarr";
+                    icon = "sh:prowlarr";
+                    url = "http://localhost:9696/";
+                  }]) ++ (betterif cfg.radarr.enable [
                   {
-                    title = "Arrstack";
-                    links = [] ++ (betterif cfg.prowlarr.enable [
-                      {
-                        title = "Prowlarr";
-                        icon = "sh:prowlarr";
-                        url = "http://localhost:9696/";
-                      }
-                    ]) ++ (betterif cfg.radarr.enable [
-                      {
-                        title = "Radarr";
-                        icon = "sh:radarr";
-                        url = "http://localhost:7878/";
-                      }
-                    ]) ++ (betterif cfg.sonarr.enable [
-                      {
-                        title = "Sonarr";
-                        icon = "sh:sonarr";
-                        url = "http://localhost:8989/";
-                      }
-                    ]) ++ (betterif cfg.bazarr.enable [
-                      {
-                        title = "Bazarr";
-                        icon = "sh:bazarr";
-                        url = "http://localhost:6767/";
-                      }
-                    ]);
+                    title = "Radarr";
+                    icon = "sh:radarr";
+                    url = "http://localhost:7878/";
                   }
-                ]) ++ (betterif cfg.transmission.enable [
-                  {
-                    title = "Downloaders";
-                    links = [] ++ [
-                      {
-                        title = "Transmission";
-                        icon = "sh:transmission";
-                        url = "http://localhost:9091/";
-                      }
-                    ];
-                  }
-                ]);
+                  ]) ++ (betterif cfg.sonarr.enable [
+                    {
+                      title = "Sonarr";
+                      icon = "sh:sonarr";
+                      url = "http://localhost:8989/";
+                    }
+                  ]) ++ (betterif cfg.bazarr.enable [
+                    {
+                      title = "Bazarr";
+                      icon = "sh:bazarr";
+                      url = "http://localhost:6767/";
+                    }
+                  ]) ++ (betterif cfg.transmission.enable [
+                    {
+                      title = "Transmission";
+                      icon = "sh:transmission";
+                      url = "http://localhost:9091/";
+                    }
+                  ]);
               }
             ];
           }
