@@ -28,6 +28,10 @@ in
       enable = mkDisableOption "Enable Bazarr";
       key = mkStrOption "Bazarr key";
     };
+    readarr = {
+      enable = mkDisableOption "Enable Readarr";
+      key = mkStrOption "Readarr key";
+    };
     radarr = {
       enable = mkDisableOption "Enable Radarr";
       key = mkStrOption "Radarr key";
@@ -63,6 +67,10 @@ in
         enable = true;
         group="arr";
       };
+      readarr = lib.mkIf cfg.readarr.enable {
+        enable = true;
+        group = "arr";
+      };
       radarr = lib.mkIf cfg.radarr.enable {
         enable = true;
         group="arr";
@@ -76,6 +84,12 @@ in
     services.glance.settings.pages = [] ++ [
       {
         name = "Home";
+        head-widgets = [
+          {
+            type = "search";
+            search-engine = "duckduckgo";
+          }
+        ];
         columns = [] ++ [
           {
             size = "small";
@@ -186,7 +200,13 @@ in
                       icon = "sh:bazarr";
                       url = "http://localhost:6767/";
                     }
-                  ]) ++ (betterif cfg.transmission.enable [
+                  ]) ++ [
+                    {
+                      title = "Readarr";
+                      icon = "sh:readarr";
+                      url = "http://localhost:8787/";
+                    }
+                  ] ++ (betterif cfg.transmission.enable [
                     {
                       title = "Transmission";
                       icon = "sh:transmission";
@@ -260,46 +280,87 @@ in
             size = "full";
             widgets = [] ++ [
               {
-                type = "monitor";
-                title = "Communicatie";
-                sites = [] ++ [
+                type = "group";
+                widgets = [
                   {
-                    title = "Itslearning";
-                    url = "https://pj.itslearning.com/";
-                    icon = "https://itslearning.com/hubfs/itslearning-app-square.svg";
+                    type = "monitor";
+                    title = "Communicatie";
+                    sites = [] ++ [
+                      {
+                        title = "Itslearning";
+                        url = "https://pj.itslearning.com/";
+                        icon = "https://itslearning.com/hubfs/itslearning-app-square.svg";
+                      }
+                      {
+                        title = "Somtoday";
+                        url = "https://leerling.somtoday.nl/";
+                        icon = "https://somtoday-servicedesk.zendesk.com/hc/theming_assets/01HZPJD0ESAB114ENQ1FD6EDHR";
+                      }
+                      {
+                        title = "Profielx.nu";
+                        url = "https://www.profielx.nu/site/home.php";
+                        allow-insecure = true;
+                        alt-status-codes = [301];
+                      }
+                      {
+                        title = "Zermelo";
+                        url = "https://ovofn.zportal.nl/";
+                        icon = "https://ovofn.zportal.nl/static/v/25.09j48/img/zermelo2013.svg";
+                      }
+                      {
+                        title = "MijnPrintcode";
+                        url = "https://mijnprintcode.ovofn.nl/login/tenant_1";
+                      }
+                      {
+                        title = "MobilePrinting";
+                        url = "https://mobileprinting.ovofn.nl:9443/end-user/ui/login";
+                        icon = "https://mobileprinting.ovofn.nl:9443/end-user/ui/assets/img/favicon.ico";
+                      }
+                      {
+                        title = "Wachtwoordherstel";
+                        url = "http://wachtwoordherstel.ovofn.nl/";
+                      }
+                      {
+                        title = "Laptop herstel";
+                        url = "https://ovofn.topdesk.net/solutions/open-knowledge-items/item/KI%200207/nl/";
+                      }
+                    ];
                   }
                   {
-                    title = "Somtoday";
-                    url = "https://leerling.somtoday.nl/";
-                    icon = "https://somtoday-servicedesk.zendesk.com/hc/theming_assets/01HZPJD0ESAB114ENQ1FD6EDHR";
-                  }
-                  {
-                    title = "Profielx.nu";
-                    url = "https://www.profielx.nu/site/home.php";
-                    allow-insecure = true;
-                    alt-status-codes = [301];
-                  }
-                  {
-                    title = "Zermelo";
-                    url = "https://ovofn.zportal.nl/";
-                    icon = "https://ovofn.zportal.nl/static/v/25.09j48/img/zermelo2013.svg";
-                  }
-                  {
-                    title = "MijnPrintcode";
-                    url = "https://mijnprintcode.ovofn.nl/login/tenant_1";
-                  }
-                  {
-                    title = "MobilePrinting";
-                    url = "https://mobileprinting.ovofn.nl:9443/end-user/ui/login";
-                    icon = "https://mobileprinting.ovofn.nl:9443/end-user/ui/assets/img/favicon.ico";
-                  }
-                  {
-                    title = "Wachtwoordherstel";
-                    url = "http://wachtwoordherstel.ovofn.nl/";
-                  }
-                  {
-                    title = "Laptop herstel";
-                    url = "https://ovofn.topdesk.net/solutions/open-knowledge-items/item/KI%200207/nl/";
+                    type = "monitor";
+                    title = "tools";
+                    sites = [
+                      {
+                        title = "Outlook";
+                        url = "https://outlook.office.com/";
+                        icon = "https://outlook.office.com/mail/favicon.ico";
+                      }
+                      {
+                        title = "Word";
+                        url = "https://word.cloud.microsoft";
+                        icon = "https://res.cdn.office.net/files/fabric-cdn-prod_20240610.001/assets/brand-icons/product/svg/word_16x1.svg";
+                      }
+                      {
+                        title = "Powerpoint";
+                        url = "https://powerpoint.cloud.microsoft";
+                        icon = "https://res.cdn.office.net/files/fabric-cdn-prod_20240610.001/assets/brand-icons/product/svg/powerpoint_16x1.svg";
+                      }
+                      {
+                        title = "Excel";
+                        url = "https://excel.cloud.microsoft";
+                        icon = "https://res.cdn.office.net/files/fabric-cdn-prod_20240610.001/assets/brand-icons/product/svg/excel_16x1.svg";
+                      }
+                      {
+                        title = "Onenote";
+                        url = "https://m365.cloud.microsoft/launch/onenote";
+                        icon = "https://res-1.cdn.office.net/officeonline/o/s/h9E1DA5BF71513549_resources/1033/FavIcon_OneNote.ico";
+                      }
+                      {
+                        title = "Anna's archive";
+                        url = "https://annas-archive.org/";
+                        icon = "https://annas-archive.org/apple-touch-icon.png?hash=d2fa3410fb1ae23ef0ab";
+                      }
+                    ];
                   }
                 ];
               }
