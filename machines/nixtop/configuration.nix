@@ -25,6 +25,7 @@
     sonarr.key = "95fd7478053e47dd89102aead48908da";
     prowlarr.key = "a61160856c3242dc9fb17332d0c814fa";
     radarr.key = "28e25bce8551464bade6724c6da60b0f";
+    readarr.key = "e43cea9107d14a02a34990b80b2efcd4";
     bazarr.key = "2c63ca8ebb624ae5f7df78e41a33023d";
   };
   general.enable = true;
