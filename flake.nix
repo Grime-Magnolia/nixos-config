@@ -9,14 +9,19 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     hyprland.url = "github:hyprwm/Hyprland";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+    stylix = {
+      url = "github:nix-community/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   
-  outputs = inputs@{ self, nixpkgs, flake-utils, hyprland, home-manager, unstable, ... }:
+  outputs = inputs@{ self, nixpkgs, stylix ,flake-utils, hyprland, home-manager, unstable, ... }:
     let
       system = "x86_64-linux";
       nixosModules = {
         #default = import "${self}/modules/networking/mysterium-node.nix";
         flatpak = import ./modules/flatpak.nix;
+        stylix = import stylix.nixosModules.stylix;
       };
       customModules = builtins.attrValues self.nixosModules;
       withCustomModules = modules: modules ++ builtins.attrValues nixosModules;
