@@ -5,12 +5,12 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     hyprland.url = "github:hyprwm/Hyprland";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     stylix = {
-      url = "github:nix-community/stylix";
+      url = "github:nix-community/stylix/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -19,16 +19,15 @@
     let
       system = "x86_64-linux";
       nixosModules = {
-        #default = import "${self}/modules/networking/mysterium-node.nix";
         flatpak = import ./modules/flatpak.nix;
-        stylix = import stylix.nixosModules.stylix;
       };
       customModules = builtins.attrValues self.nixosModules;
       withCustomModules = modules: modules ++ builtins.attrValues nixosModules;
-      #myst-overlay = self: super: {};
       pkgsFor = system: import nixpkgs {
         inherit system;
-        overlays = [ ];
+        overlays = [
+          (import ./overlays/yt-dlp.nix)
+        ];
         config.allowUnfree = true;
         config.permittedInsecurePackages = [
           "openssl-1.1.1w"
@@ -48,6 +47,7 @@
             inherit system;
             inherit pkgs;
             modules = withCustomModules [
+              stylix.nixosModules.stylix
               ./general-conf.nix
               ./modules/arrstack.nix
               ./machines/nixtop/configuration.nix
@@ -56,7 +56,11 @@
               {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
-                home-manager.users.tygo = import ./home.nix;
+                home-manager.users.tygo = {
+                  imports = [
+                    ./homes/tygo/home.nix
+                  ];
+                };
                 home-manager.backupFileExtension = null;
               }
               {
@@ -83,7 +87,7 @@
               {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
-                home-manager.users.tygo = import ./home.nix;
+                home-manager.users.tygo = import ./homes/tygo/home.nix;
                 home-manager.backupFileExtension = null;
               }
               {
