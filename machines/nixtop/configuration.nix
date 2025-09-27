@@ -9,11 +9,6 @@
     ./hardware-configuration.nix
     # ./modules
   ];
-  stylix = {
-    enable = true;
-    image = ../../wallpapers/orange_landscape.jpg;
-    polarity = "dark";
-  };
   nix = {
     package = pkgs.nixVersions.stable;
 

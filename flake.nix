@@ -48,6 +48,7 @@
             inherit pkgs;
             modules = withCustomModules [
               stylix.nixosModules.stylix
+              ./modules/stylix.nix
               ./general-conf.nix
               ./modules/arrstack.nix
               ./machines/nixtop/configuration.nix
