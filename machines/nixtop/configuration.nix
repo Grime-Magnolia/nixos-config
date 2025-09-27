@@ -5,12 +5,14 @@
 { config, pkgs, unstable, inputs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-     # ./modules
-    ];
-  
+  imports = [ # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    # ./modules
+  ];
+  stylix = {
+    enable = true;
+    image = ../../wallpapers/orange_landscape.jpg;
+  };
   nix = {
     package = pkgs.nixVersions.stable;
 
@@ -101,6 +103,7 @@
     ln -sf ${pkgs.bash}/bin/bash /bin/
     ln -sf ${pkgs.less}/bin/less /bin/
     ln -sf ${pkgs.sudo}/bin/sudo /bin/
+    ln -sf ${pkgs.fish}/bin/fish /bin/
   '';
   # *Arr stack
   services = {
@@ -222,6 +225,7 @@
       dualsensectl
       pcsx2
       vkd3d
+      freecad
       vulkan-tools
       protonplus
       dxvk
@@ -267,6 +271,9 @@
       eww
       gamescope
       hyprpolkitagent
+      hyprshot
+      grim
+      slurp
       mpv
       opencpn
       kitty
