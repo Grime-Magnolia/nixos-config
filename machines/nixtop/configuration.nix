@@ -12,7 +12,7 @@
   stylix = {
     enable = true;
     image = ../../wallpapers/orange_landscape.jpg;
-    stylix.polarity = "dark";
+    polarity = "dark";
   };
   nix = {
     package = pkgs.nixVersions.stable;
