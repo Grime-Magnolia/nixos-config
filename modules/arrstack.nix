@@ -46,6 +46,11 @@ in
     };
     flaresolverr.enable = mkDisableOption "Enable flaresolverr";
     transmission.enable = mkDisableOption "Enable transmission";
+    #transmission.package = lib.mkOption {
+    #  default = pkgs.transmission_4;
+    #  description = "Transmission package";
+    #  type = lib.types.derivation;
+    #};
     jellyseerr.enable = mkDisableOption "Enable jellyseerr";
   };
 
@@ -57,6 +62,7 @@ in
       flaresolverr.enable = cfg.flaresolverr.enable || cfg.prowlarr.enable;
       transmission = lib.mkIf cfg.transmission.enable {
         enable = true;
+        package = pkgs.transmission_4;
         group="arr";
       };
       sonarr = lib.mkIf cfg.sonarr.enable {
@@ -112,6 +118,15 @@ in
                   }
                 ] ++ [
                   {url = "https://ciechanow.ski/atom.xml";}
+                ] ++ [
+                  {
+                    url = "https://news.itsfoss.com/rss/";
+                    title = "Itsfoss News";
+                  }
+                  {
+                    url = "https://itsfoss.com/rss";
+                    title = "Itsfoss";
+                  }
                 ] ++ [
                   {
                     url = "https://www.joshwcomeau.com/rss.xml";
@@ -213,6 +228,62 @@ in
                       url = "http://localhost:9091/";
                     }
                   ]);
+              }
+            ];
+          }
+        ];
+      }
+    ] ++ [
+      {
+        name = "Nix";
+        columns = [
+          {
+            size = "full";
+            widgets = [
+              { 
+                type = "bookmarks";
+                groups = [
+                  {
+                    title = "Offcial";
+                    links = [
+                      {
+                        title = "Nix Manual";
+                        url = "https://nix.dev/manual/nix";
+                        icon = "si:nixos";
+                      }
+                      { 
+                        title = "Homepage";
+                        url = "https://nixos.org/";
+                        icon = "si:nixos";
+                      }
+                      {
+                        title = "Wiki";
+                        url = "https://wiki.nixos.org/";
+                        icon = "si:nixos";
+                      }
+                      {
+                        title = "Search";
+                        url = "https://search.nixos.org";
+                        icon = "si:nixos";
+                      }
+                    ];
+                  }
+                  {
+                    title = "Unofficial";
+                    links = [
+                      {
+                        title = "Noogle";
+                        url = "https://noogle.dev/";
+                        icon = "si:nixos";
+                      }
+                      { 
+                        icon = "si:github";
+                        url = "https://github.com/nix-community/awesome-nix";
+                        title = "Awsome Nix";
+                      }
+                    ];
+                  }
+                ];
               }
             ];
           }
