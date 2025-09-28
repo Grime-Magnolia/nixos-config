@@ -19,5 +19,10 @@
       pkgs.hyprlandPlugins.hyprgrass
     ];
   };
+  stylix = {
+    targets = {
+      cava.rainbow.enable = true;
+    };
+  };
   home.stateVersion = "24.11";
 }
