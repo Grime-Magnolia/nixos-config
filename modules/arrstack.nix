@@ -120,15 +120,6 @@ in
                   {url = "https://ciechanow.ski/atom.xml";}
                 ] ++ [
                   {
-                    url = "https://news.itsfoss.com/rss/";
-                    title = "Itsfoss News";
-                  }
-                  {
-                    url = "https://itsfoss.com/rss";
-                    title = "Itsfoss";
-                  }
-                ] ++ [
-                  {
                     url = "https://www.joshwcomeau.com/rss.xml";
                     title = "Josh Comeau";
                   }
@@ -298,52 +289,6 @@ in
             widgets = [] ++ [
               {
                 type = "to-do";
-              }
-              {
-                type = "rss";
-                title = "Itslearning updates";
-                feeds = [
-                  {
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=16519&PersonId=425076&CustomerId=2630&Guid=47b99fffd61f943e2bdaadb3cfb17975&Culture=nl-NL";
-                    title = "Klas 4-5-6 Info 25-26";
-                  }
-                  {
-                    title = "la5.schk2-25-26";
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=15428&PersonId=425076&CustomerId=2630&Guid=fbe0535cb45be21468ecd0732db9baa8&Culture=nl-NL";
-                  }
-                  {
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=15426&PersonId=425076&CustomerId=2630&Guid=f333e8a1d446cacc103839d143765e9a&Culture=nl-NL";
-                    title = "la5.biol2-25-26";
-                  }
-                  {
-                    title = "la5.men3_nkoo-25-26";
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=15425&PersonId=425076&CustomerId=2630&Guid=8d00b0a5058ea3d915d8154302f8328d&Culture=nl-NL";
-                  }
-                  {
-                    title = "la5.wisd1-25-26";
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=15423&PersonId=425076&CustomerId=2630&Guid=442ed42b3e04e4633058f26386b167a8&Culture=nl-NL";
-                  }
-                  {
-                    title = "la5.wisb1-25-26";
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=15414&PersonId=425076&CustomerId=2630&Guid=070402d4d979ff70a5133bda4914ee0c&Culture=nl-NL";
-                  }
-                  {
-                    title = "la5.entl5a-25-26";
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=15410&PersonId=425076&CustomerId=2630&Guid=21eab3be768323ae92f746f0e032a253&Culture=nl-NL";
-                  }
-                  {
-                    title = "la5.netl5a-25-26";
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=15409&PersonId=425076&CustomerId=2630&Guid=f455ddc482c706b3ca8f5c70449e88ff&Culture=nl-NL";
-                  }
-                  {
-                    title = "la5.o&o5a-25-26";
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=15403&PersonId=425076&CustomerId=2630&Guid=128f26b9ba7d6c38d1be0b1a4b0c1908&Culture=nl-NL";
-                  }
-                  {
-                    title = "la5.nat1-25-26";
-                    url = "https://pj.itslearning.com/Dashboard/NotificationRss.aspx?LocationType=1&LocationID=15399&PersonId=425076&CustomerId=2630&Guid=d75fa011ca0126190612b38db1e706ef&Culture=nl-NL";
-                  }
-                ];
               }
             ];
           }
