@@ -1,18 +1,16 @@
-let 
-  nixosversion = "25.05";
-in {
+{
   description = "My NixOS configuration as a flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-${nixosversion}";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    home-manager.url = "github:nix-community/home-manager/release-${nixosversion}";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     hyprland.url = "github:hyprwm/Hyprland";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     stylix = {
-      url = "github:nix-community/stylix/release-${nixosversion}";
+      url = "github:nix-community/stylix/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -29,6 +27,7 @@ in {
         inherit system;
         overlays = [
           (import ./overlays/yt-dlp.nix)
+          (import ./overlays/freac.nix)
         ];
         config.allowUnfree = true;
         config.permittedInsecurePackages = [
@@ -85,7 +84,6 @@ in {
               ./modules/arrstack.nix
               ./machines/tynix/configuration.nix
               ./machines/tynix/hardware-configuration.nix
-              ./modules/homepage.nix
               home-manager.nixosModules.home-manager
               {
                 home-manager.useGlobalPkgs = true;
