@@ -76,6 +76,38 @@
               }
             ];
           };
+          frametop = nixpkgs.lib.nixosSystem {
+            inherit system;
+            inherit pkgs;
+            modules = withCustomModules [
+              stylix.nixosModules.stylix
+              ./modules/stylix.nix
+              ./general-conf.nix
+              ./modules/arrstack.nix
+              ./machines/frametop/configuration.nix
+              ./machines/frametop/hardware-configuration.nix
+              home-manager.nixosModules.home-manager
+              {
+                home-manager.useGlobalPkgs = true;
+                home-manager.useUserPackages = true;
+                home-manager.users.tygo = {
+                  imports = [
+                    ./homes/tygo/home.nix
+                  ];
+                };
+                home-manager.backupFileExtension = null;
+              }
+              {
+                _module.args = {
+                  inherit inputs;
+                  unstable = import unstable {
+                    system = "x86_64-linux";
+                    config.allowUnfree = true;
+                  };
+                };
+              }
+            ];
+          };
           tynix = nixpkgs.lib.nixosSystem {
             inherit system;
             inherit pkgs;
