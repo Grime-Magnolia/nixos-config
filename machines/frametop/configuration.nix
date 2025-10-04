@@ -103,6 +103,7 @@
     "pcie_aspm=force"
     "pcie_aspm.policy=powersave"
     "mem_sleep_default=deep"
+    "acpi_sleep=deep"
   ];
   #services.udev.extraRules = ''
   #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_force_performance_level}="low"
