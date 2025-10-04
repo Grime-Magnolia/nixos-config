@@ -15,7 +15,7 @@
     };
   };
   
-  outputs = inputs@{ self, nixpkgs, stylix ,flake-utils, hyprland, home-manager, unstable, ... }:
+  outputs = inputs@{ self, nixpkgs, stylix, nixos-hardware, flake-utils, hyprland, home-manager, unstable, ... }:
     let
       system = "x86_64-linux";
       nixosModules = {
@@ -81,6 +81,7 @@
             inherit pkgs;
             modules = withCustomModules [
               stylix.nixosModules.stylix
+              nixos-hardware.nixosModules.framework-amd-ai-300-series
               ./modules/stylix.nix
               ./general-conf.nix
               ./modules/arrstack.nix
