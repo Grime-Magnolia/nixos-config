@@ -85,19 +85,24 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelParams = [
+    # Swap
     "zswap.enabled=1" # enables zswap
     "zswap.compressor=lz4" # compression algorithm
     "zswap.max_pool_percent=50" # maximum percentage of RAM that zswap is allowed to use
     "zswap.shrinker_enabled=1" # whether to shrink the pool proactively on high memory pressure
+    
+    # Gpu settings
     "amdgpu.dc=1"            # Enable Display Core, needed for power-saving
     "amdgpu.aspm=1"          # ASPM power management
     "amdgpu.dpm=1"           # Dynamic Power Management
+    "amdgpu.enable_psr=1"
+    "amdgpu.ppfeaturemask=0xffffbfff"  # Enables manual DPM control
+
+    # Pcie settings
     "nvme.noacpi=1"
     "pcie_aspm=force"
     "pcie_aspm.policy=powersave"
-    "amdgpu.ppfeaturemask=0xffffbfff"  # Enables manual DPM control
     "mem_sleep_default=deep"
-    "amdgpu.enable_psr=1"
   ];
   #services.udev.extraRules = ''
   #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_force_performance_level}="low"
