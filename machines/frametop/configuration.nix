@@ -108,6 +108,19 @@
   #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_force_performance_level}="low"
   #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_state}="battery"
   #'';
+  systemd.services.enable-usb-wakeup = {
+    description = "Enable wakeup on all USB devices for Framework resume bug";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = ''
+        for f in /sys/bus/usb/devices/*/power/wakeup; do
+          echo enabled > "$f" || true
+        done
+      '';
+    };
+  };
   systemd.services.powertop = {
     description = "PowerTOP tunings";
     wantedBy = [ "multi-user.target" ];
