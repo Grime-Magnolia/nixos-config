@@ -93,6 +93,7 @@ in{
           car = "";
           default = ["" "" ""];
         };
+        on-click = "pavucontrol";
       };
       tray = {  
         spacing = 10;
@@ -456,6 +457,21 @@ label:focus {
 }
     '';
   };
+  #programs.hyprlock = { 
+  #  enable = true;
+  #  settings = {
+  #    general = {};
+  #    background = [
+  #      {
+  #        path = "${../../wallpapers/Sunset_cam.jpg}";
+  #      }
+  #    ];
+  #    input-field = [
+  #      { 
+  #        size = "350, 50"}
+  #    ];
+  #  };
+  #};
   #stylix = {
   #  targets = {
   #    cava.rainbow.enable = true;
