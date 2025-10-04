@@ -100,7 +100,6 @@
     "amdgpu.ppfeaturemask=0xffffbfff"  # Enables manual DPM control
 
     # Pcie settings
-    "nvme.noacpi=1"
     "pcie_aspm=force"
     "pcie_aspm.policy=powersave"
     "mem_sleep_default=deep"
