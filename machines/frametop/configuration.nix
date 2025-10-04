@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, unstable, inputs, ... }:
+{ config, pkgs, lib, builtins, unstable, inputs, ... }:
 
 {
   imports = [ # Include the results of the hardware scan.
@@ -27,6 +27,36 @@
     bazarr.key = "2c63ca8ebb624ae5f7df78e41a33023d";
   };
   general.enable = true;
+
+  # TLP for powerscaling
+  services.tlp = {
+    enable = true;
+    settings = {
+
+      CPU_SCALING_GOVERNOR_ON_AC = "performance";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+
+      CPU_DRIVER_OPMODE_ON_AC = "active";
+      CPU_DRIVER_OPMODE_ON_BAT = "active";
+
+      CPU_SCALING_MIN_FREQ_ON_AC=625000;
+      CPU_SCALING_MAX_FREQ_ON_AC=4900000;
+      CPU_SCALING_MIN_FREQ_ON_BAT=625000;
+      CPU_SCALING_MAX_FREQ_ON_BAT=4900000;
+      
+      USB_AUTOSUSPEND = 1;
+      
+      CPU_BOOST_ON_AC=1;
+      CPU_BOOST_ON_BAT=1;
+      # Optional helps save long term battery health
+      #START_CHARGE_THRESH_BAT0 = 40; # 40 and bellow it starts to charge
+      #STOP_CHARGE_THRESH_BAT0 = 80;  # 80 and above it stops charging
+    };
+  };
+
   # Swap
   swapDevices = [{
     device = "/var/lib/swapfile";
@@ -59,7 +89,31 @@
     "zswap.compressor=lz4" # compression algorithm
     "zswap.max_pool_percent=50" # maximum percentage of RAM that zswap is allowed to use
     "zswap.shrinker_enabled=1" # whether to shrink the pool proactively on high memory pressure
+    "amdgpu.dc=1"            # Enable Display Core, needed for power-saving
+    "amdgpu.aspm=1"          # ASPM power management
+    "amdgpu.dpm=1"           # Dynamic Power Management
+    "nvme.noacpi=1"
+    "pcie_aspm=force"
+    "pcie_aspm.policy=powersave"
+    "amdgpu.ppfeaturemask=0xffffbfff"  # Enables manual DPM control
+    "mem_sleep_default=deep"
+    "amdgpu.enable_psr=1"
   ];
+  #services.udev.extraRules = ''
+  #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_force_performance_level}="low"
+  #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_state}="battery"
+  #'';
+  systemd.services.powertop = {
+    description = "PowerTOP tunings";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "multi-user.target" ];
+
+    serviceConfig = {
+      ExecStart = "${pkgs.powertop}/bin/powertop --auto-tune";
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
   boot.kernel.sysctl = {
     "vm.swappiness" = 10;
   };
@@ -171,9 +225,34 @@
   services.fprintd = {
     enable = true;
   }; 
+  security.pam.services.login.fprintAuth = false;
+  security.pam.services.gdm-fingerprint = lib.mkIf (config.services.fprintd.enable) {
+    text = ''
+      auth       required                    pam_shells.so
+      auth       requisite                   pam_nologin.so
+      auth       requisite                   pam_faillock.so      preauth
+      auth       required                    ${pkgs.fprintd}/lib/security/pam_fprintd.so
+      auth       optional                    pam_permit.so
+      auth       required                    pam_env.so
+      auth       [success=ok default=1]      ${pkgs.gdm}/lib/security/pam_gdm.so
+      auth       optional                    ${pkgs.gnome-keyring}/lib/security/pam_gnome_keyring.so
+
+      account    include                     login
+
+      password   required                    pam_deny.so
+
+      session    include                     login
+      session    optional                    ${pkgs.gnome-keyring}/lib/security/pam_gnome_keyring.so auto_start
+    '';
+  };
+  security.pam.services.gdm.fprintAuth = true;
+  security.pam.services.sudo.fprintAuth = true;  # optional
+  #services.logind.lidSwitch = "suspend-then-hibernate";
+
+
 
   fonts.fontDir.enable = true;
-  services.power-profiles-daemon.enable = true;
+  services.power-profiles-daemon.enable = false;
   # Enable the KDE Plasma Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
@@ -235,6 +314,7 @@
       handbrake
       wvkbd
       p7zip
+      powertop
       soundconverter
       freac
       flac
@@ -363,26 +443,7 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
-  services.tlp = {
-        enable = false;
-        settings = {
-          CPU_SCALING_GOVERNOR_ON_AC = "performance";
-          CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
-          CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-          CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-  
-          CPU_MIN_PERF_ON_AC = 0;
-          CPU_MAX_PERF_ON_AC = 100;
-          CPU_MIN_PERF_ON_BAT = 0;
-          CPU_MAX_PERF_ON_BAT = 20;
-
-         #Optional helps save long term battery health
-         START_CHARGE_THRESH_BAT0 = 40; # 40 and below it starts to charge
-         STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
-
-        };
-  };
 
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
