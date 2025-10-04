@@ -13,9 +13,10 @@
       url = "github:nix-community/stylix/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    impermanence.url = "github:nix-community/impermanence";
   };
   
-  outputs = inputs@{ self, nixpkgs, stylix, nixos-hardware, flake-utils, hyprland, home-manager, unstable, ... }:
+  outputs = inputs@{ self, nixpkgs, impermanence, stylix, nixos-hardware, flake-utils, hyprland, home-manager, unstable, ... }:
     let
       system = "x86_64-linux";
       nixosModules = {
@@ -81,6 +82,7 @@
             inherit pkgs;
             modules = withCustomModules [
               stylix.nixosModules.stylix
+              impermanence.nixosModules.impermanence
               nixos-hardware.nixosModules.framework-amd-ai-300-series
               ./modules/stylix.nix
               ./general-conf.nix
