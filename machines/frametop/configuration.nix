@@ -114,11 +114,7 @@
     after = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = ''
-        for f in /sys/bus/usb/devices/*/power/wakeup; do
-          echo enabled > "$f" || true
-        done
-      '';
+      ExecStart = "${pkgs.bash}/bin/bash -c 'for f in /sys/bus/usb/devices/*/power/wakeup; do echo enabled > \"$f\" || true; done'";
     };
   };
   systemd.services.powertop = {
