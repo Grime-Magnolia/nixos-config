@@ -31,8 +31,8 @@ let
   hexToRgba = hex: alpha: let 
     c = hexToRgb hex;
     in "rgba(${builtins.toString c.r}, ${builtins.toString c.g}, ${builtins.toString c.b}, ${builtins.toString alpha})";
-  color = config.lib.stylix.colors.withHashtag;
-in{
+  color = config.lib.stylix.colors.withHashtag; 
+in {
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
   # when a new Home Manager release introduces backwards
@@ -41,7 +41,7 @@ in{
   # You can update Home Manager without changing this value. See
   # the Home Manager release notes for a list of state version
   # changes in each release.
-  xdg.configFile."waybar/config.jsonc".source = ./waybar/config.jsonc;
+  #xdg.configFile."waybar/config.jsonc".source = ./waybar/config.jsonc;
   wayland.windowManager.hyprland = {
     enable = true ;
     settings = {
@@ -59,7 +59,7 @@ in{
       height = 30;
       spacing = 9;  
       width = 1200;
-      modules-left = ["idle_inhibitor" "tray"];
+      modules-left = ["idle_inhibitor" "tray" "custom/dualsense"];
       modules-center = ["clock"];
       modules-right = [
         "pulseaudio"
@@ -67,7 +67,6 @@ in{
         "memory"
         "temperature"
         "network"
-        "power-profiles-daemon"
         "battery"
       ];
       idle_inhibitor = {
@@ -98,6 +97,13 @@ in{
       tray = {  
         spacing = 10;
       };
+      "custom/dualsense" = rec {
+        hide-empty-text = false;
+        format = "󰊴 {text}";
+        exec = "${pkgs.dualsensectl}/bin/dualsensectl battery|grep -oE '[0-9]+'";
+        on-update = exec;
+        interval = 10;
+      };
       clock = { 
         tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
         format-alt = "{:%Y-%m-%d}";
@@ -124,6 +130,7 @@ in{
         format-full = "{capacity}% {icon}";
         format-charging = "{capacity}% ";
         format-plugged = "{capacity}% ";
+        format-alt = "{time} {icon}";
         format-icons = ["" "" "" "" ];
       };
       power-profiles-daemon = { 
