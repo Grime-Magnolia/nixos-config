@@ -48,6 +48,7 @@
       CPU_SCALING_MAX_FREQ_ON_BAT=4900000;
       
       USB_AUTOSUSPEND = 1;
+      USB_ALLOWLIST = "27c6:609c";
       SOUND_POWER_SAVE_ON_AC=0;
       SOUND_POWER_SAVE_ON_BAT=0;
       
@@ -58,11 +59,10 @@
       #STOP_CHARGE_THRESH_BAT0 = 80;  # 80 and above it stops charging
     };
   };
-
   # Swap
   swapDevices = [{
     device = "/var/lib/swapfile";
-    size = 16*1024; # 16 GB
+    size = 64*1024; # 16 GB
   }];
   zramSwap.enable = true;
   
@@ -87,6 +87,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  hardware.firmware = [
+    (pkgs.callPackage ../../packages/xdna-driver/xdna-driver.nix {latest=unstable; }).firmware
+  ];
   boot.kernelParams = [
     # Swap
     "zswap.enabled=1" # enables zswap
@@ -95,32 +98,30 @@
     "zswap.shrinker_enabled=1" # whether to shrink the pool proactively on high memory pressure
     
     # Gpu settings
-    "amdgpu.dc=1"            # Enable Display Core, needed for power-saving
-    "amdgpu.aspm=1"          # ASPM power management
-    "amdgpu.dpm=1"           # Dynamic Power Management
-    "amdgpu.enable_psr=1"
-    "amdgpu.ppfeaturemask=0xffffbfff"  # Enables manual DPM control
+    #"amdgpu.dc=1"            # Enable Display Core, needed for power-saving
+    #"amdgpu.aspm=1"          # ASPM power management
+    #"amdgpu.dpm=1"           # Dynamic Power Management
+    #"amdgpu.enable_psr=1"
+    #"amdgpu.ppfeaturemask=0xffffbfff"  # Enables manual DPM control
 
     # Pcie settings
-    "pcie_aspm=force"
-    "pcie_aspm.policy=powersave"
-    "mem_sleep_default=deep"
-    "acpi_sleep=deep"
+    #"mem_sleep_default=deep"
+    #"acpi_sleep=deep"
+
+    # Suspending / Sleep settings
     "amd_iommu=fullflush" # Should make the suspending process more effecient
+    #"resume=/dev/nvme0n1p2"
+    #"resume_offset=224638976"   # replace with new first extent
+    "nvme_core.default_ps_max_latency_us=0"
+    "nvme_core.io_timeout=30"
+    "nvme_core.max_retries=10"
+    "rtc_cmos.use_acpi_alarm=1"
   ];
   #services.udev.extraRules = ''
   #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_force_performance_level}="low"
   #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_state}="battery"
   #'';
-  systemd.services.enable-usb-wakeup = {
-    description = "Enable wakeup on all USB devices for Framework resume bug";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.bash}/bin/bash -c 'for f in /sys/bus/usb/devices/*/power/wakeup; do echo enabled > \"$f\" || true; done'";
-    };
-  };
+
   systemd.services.powertop = {
     description = "PowerTOP tunings";
     wantedBy = [ "multi-user.target" ];
@@ -141,8 +142,23 @@
   networking.networkmanager.enable = true;
   # Printing
   services.printing.enable = true;
-  services.printing.webInterface = false;
-  services.printing.drivers = [pkgs.hplip ];
+  services.printing.webInterface = true;
+  services.printing.drivers = [pkgs.hplip];
+  hardware.printers = {
+    #ensureDefaultPrinter = "HP_Color_LaserJet_MFP_M281fdw_CED640";
+    #ensurePrinters = [
+    #  {
+    #    deviceUri = "ipp://192.168.2.86/ipp";
+    #    location = "home";
+    #    name = "HP_Color_LaserJet_MFP_M281fdw_CED640";
+    #    model = "everywhere";
+    #    ppdOptions = {
+    #      PageSize = "A4";
+    #      Duplex = "DuplexNoTumble";
+    #    };
+    #  }
+    #];
+  };
 
   services.avahi = {
     enable = true;
@@ -187,15 +203,15 @@
   programs.steam.gamescopeSession.args = [
     "--expose-wayland"
   ];
-  systemd.services.mullvaddaemon = {
-    wantedBy = ["default.target"];
-    requiredBy = ["network.target"];
-    after = ["network.target"];
-    description = "Mullvad daemon starter";
-    serviceConfig = {
-      ExecStart = "${pkgs.mullvad-vpn}/bin/mullvad-daemon";
-    };
-  };
+  #systemd.services.mullvaddaemon = {
+  #  wantedBy = ["default.target"];
+  #  requiredBy = ["network.target"];
+  #  after = ["network.target"];
+  #  description = "Mullvad daemon starter";
+  #  serviceConfig = {
+  #    ExecStart = "${pkgs.mullvad-vpn}/bin/mullvad-daemon";
+  #  };
+  #};
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
 
@@ -247,7 +263,7 @@
   security.pam.services.gdm-fingerprint.fprintAuth = true;
   security.pam.services.gdm.fprintAuth = true;
   security.pam.services.sudo.fprintAuth = true;  # optional
-
+  services.logind.powerKey = "lock";
 
 
   fonts.fontDir.enable = true;
@@ -302,11 +318,16 @@
       freecad
       vulkan-tools
       protonplus
+      goverlay
+      mangohud
       dxvk
       nh
       playerctl
+      rpcs3
       #retroarch-full
       winetricks
+      usbutils
+      pciutils
       cava
       ghidra
       #nixos-generators

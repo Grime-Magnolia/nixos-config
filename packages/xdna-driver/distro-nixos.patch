@@ -1,0 +1,13 @@
+diff --git a/CMake/pkg.cmake b/CMake/pkg.cmake
+index a1472cf..a6fa8fc 100644
+--- a/CMake/pkg.cmake
++++ b/CMake/pkg.cmake
+@@ -117,6 +117,8 @@ elseif("${XDNA_CPACK_LINUX_PKG_FLAVOR}" MATCHES "fedora")
+     set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/package/postinst") 
+     set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/package/prerm") 
+   endif()
++elseif("${XDNA_CPACK_LINUX_PKG_FLAVOR}" MATCHES "")
++  message(STATUS "Detected Nix Derivation")
+ else("${XDNA_CPACK_LINUX_PKG_FLAVOR}" MATCHES "debian")
+   message(FATAL_ERROR "Unknown Linux package flavor: ${XDNA_CPACK_LINUX_PKG_FLAVOR}")
+ endif("${XDNA_CPACK_LINUX_PKG_FLAVOR}" MATCHES "debian")
