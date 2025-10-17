@@ -16,6 +16,13 @@ specs
 - Intel(R) Core(TM) i5-7200U (4) @ 3.10 GHz
 - Intel HD Graphics 620 @ 1.00 GHz [Integrated]
 - 1 TB m.2 SSD
+### Frametop
+> my framework Laptop
+- Laptop 13 (AMD Ryzen AI 300 Series) (A5)
+- 32gb ram 5600MT
+- AMD Ryzen AI 5 340
+- AMD Radeon 840M/860M
+- 2 TB m.2 SSD
 ### Bmaxnix
 > my bmax 6 pro/plus mini pc
 ## Webapps
