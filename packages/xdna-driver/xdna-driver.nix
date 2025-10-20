@@ -52,7 +52,7 @@ pkgs.stdenv.mkDerivation rec {
   ];
   cmakeFlags = [
     "-DCMAKE_INSTALL_PREFIX=${placeholder "out"}"
-    "-DXDNA_BIN_DIR=${placeholder "out"}/bin"
+    "-DXDNA_BIN_DIR=${placeholder "out"}"
     "-DFIRMWARE_INSTALL_DIR=${placeholder "firmware"}/lib/firmware"
     "-DCMAKE_INSTALL_LIBDIR=./lib"
     "-DPYTHON_EXECUTABLE=${pkgs.python3}/bin/python3"
@@ -79,7 +79,7 @@ pkgs.stdenv.mkDerivation rec {
 
     substituteInPlace xrt/src/runtime_src/ert/CMakeLists.txt \
       --replace-fail 'set(ERT_INSTALL_FIRMWARE_PREFIX "/lib/firmware/xilinx")' \
-      "set(ERT_INSTALL_FIRMWARE_PREFIX \"$out/lib/firmware/xilinx\")"
+      "set(ERT_INSTALL_FIRMWARE_PREFIX \"$firmware/lib/firmware/xilinx\")"
 
 
     substituteInPlace ./CMakeLists.txt \
@@ -91,7 +91,7 @@ pkgs.stdenv.mkDerivation rec {
     --replace-warn '\$\{XDNA_PKG_DATA_DIR\}' "$out/share/amdxdna" \
 
     substituteInPlace CMakeLists.txt \
-    --replace-warn 'set(XDNA_BIN_DIR      /bins) # For saving all built artifacts for quick testing' "set(XDNA_BIN_DIR      $out/bin) # For saving all built artifacts for quick testing"
+    --replace-warn 'set(XDNA_BIN_DIR      /bins) # For saving all built artifacts for quick testing' "set(XDNA_BIN_DIR      $out) # For saving all built artifacts for quick testing"
     mkdir -p $out/share
     mkdir -p $firmware/lib/firmware -p
   '';

@@ -44,12 +44,21 @@
             buildInputs = with pkgs; [ git nixfmt ];
           };
         }) // {
-        packages.x86_64-linux.drivershit = pkgs.callPackage ./packages/xdna-driver/xdna-driver.nix {
-          latest=import unstable {
-            system = "x86_64-linux";
-            config.allowUnfree = true;
+        packages.x86_64-linux = {
+          xdna-driver = pkgs.callPackage ./packages/xdna-driver/xdna-driver.nix {
+            latest=import unstable {
+              system = "x86_64-linux";
+              config.allowUnfree = true;
+            };
+          };
+          xrt = pkgs.callPackage ./packages/xrt/xrt.nix {
+            latest = import unstable {
+              system = "x86_64-linux";
+              config.allowUnfree = true;
+            };
           };
         };
+
         nixosConfigurations = {
           nixtop = nixpkgs.lib.nixosSystem {
             inherit system;
