@@ -21,10 +21,6 @@ stdenv.mkDerivation rec {
     pkg-config
     gnumake
     gcc              # ensure a full gcc toolchain for configure/compiles
-    #glib
-    #glibc.dev        # headers available at compile-time for the compiler wrapper
-    #glibc.static
-    #linuxHeaders     # kernel headers if build expects sys/headers
     stdenv.cc.libc.static
     binutils
     bintools
@@ -79,7 +75,6 @@ stdenv.mkDerivation rec {
     "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
     "-DENABLE_AZURE=OFF"
     "-DBUILD_SHARED_LIBS=ON"   # Prefer shared (.so) linking
-    #"-DSTATIC_LINKING=OFF"     # Disable static link targets if the project uses this flag
     "-DXRT_BUILD_STATIC_EXECUTABLES=OFF"
     "-DXRT_STATIC_BUILD=OFF"
   ];
@@ -169,9 +164,65 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
     --replace-fail 'set (XRT_DKMS_INSTALL_DIR "/usr/src/xrt-''${XRT_VERSION_STRING}")' \
     'set(XRT_DKMS_INSTALL_DIR "${placeholder "out"}/driver_code")'
     
-    substituteInPlace src/runtime_src/core/tools/xbtracer/script/ch_mangled/CMakeLists.txt \
-    --replace-fail 'set(XRT_INSTALL_DIR ''${CMAKE_CURRENT_BINARY_DIR})' \
-    'set(XRT_INSTALL_DIR ${placeholder "out"})'
+    #substituteInPlace src/runtime_src/core/tools/xbtracer/script/ch_mangled/CMakeLists.txt \
+    #--replace-fail 'set(XRT_INSTALL_DIR ''${CMAKE_CURRENT_BINARY_DIR})' \
+    #'set(XRT_INSTALL_DIR ${placeholder "out"})'
+
+    substituteInPlace build/xocl_petalinux_compile/CMakeLists.txt \
+    --replace-fail 'set (XRT_INSTALL_DIR           "''${CMAKE_BINARY_DIR}")' \
+    'set (XRT_INSTALL_DIR           "${placeholder "out"}")'
+
+   substituteInPlace src/CMake/xrtVariables.cmake \
+    --replace-fail 'set (XRT_INSTALL_DIR .)' 'set (XRT_INSTALL_DIR ${placeholder "out"})'
+   substituteInPlace src/CMake/xrtVariables.cmake \
+    --replace-fail 'set (XRT_INSTALL_DIR            .)' 'set (XRT_INSTALL_DIR            ${placeholder "out"})'
+    
+    substituteInPlace src/runtime_src/core/pcie/tools/xbflash.qspi/CMakeLists.txt \
+      --replace-fail 'DESTINATION ''${XRT_INSTALL_DIR}/bin)' \
+      "DESTINATION ${placeholder "out"}/bin)"   
+    substituteInPlace src/runtime_src/core/pcie/tools/xbflash.qspi/CMakeLists.txt \
+      --replace-fail 'DESTINATION ''${XBFLASH_INSTALL_DEST}' \
+      'DESTINATION ${placeholder "out"}/bin'
+
+    substituteInPlace src/runtime_src/core/tools/xbflash2/CMakeLists.txt \
+    --replace-fail 'DESTINATION ''${XBFLASH_INSTALL_DEST}' \
+    'DESTINATION ${placeholder "out"}'
+
+    # Patch hardcoded install prefix
+    substituteInPlace build/build.sh \
+      --replace-fail '/opt/xilinx/xrt' "$out"
+
+    # Also patch test/build scripts just to avoid `/opt` references
+    grep -Rl "/opt/xilinx" . | while read -r f; do
+      substituteInPlace "$f" --replace "/opt/xilinx" "$out"
+    done
+
+    substituteInPlace src/CMake/dkms-aws.cmake \
+      --replace-fail 'set(XRT_DKMS_AWS_INSTALL_DIR "/usr/src/xrt-aws-''${XRT_VERSION_STRING}")' \
+      'set(XRT_DKMS_AWS_INSTALL_DIR "${placeholder "out"}")'
+    
+    substituteInPlace src/runtime_src/tools/scripts/install.sh \
+      --replace-fail '/etc/OpenCL/vendors' \
+      '${placeholder "out"}/OpenCL/vendors'
+    
+    substituteInPlace src/CMake/cpackLin.cmake \
+      --replace-fail '/etc/OpenCL/vendors' \
+      '${placeholder "out"}'
+
+    substituteInPlace src/CMake/config/postinst-edge.in \
+      --replace-fail '/etc/OpenCL/vendors' \
+      '${placeholder "out"}'
+
+    substituteInPlace src/CMake/icd.cmake \
+      --replace-fail '/etc/OpenCL/vendors' \
+      '${placeholder "out"}'
+    
+    substituteInPlace build/debian/xrt-zocl-dkms.postinst \
+      --replace-fail '/etc/OpenCL/vendors' \
+      '${placeholder "out"}'
+
+
+
     mkdir -p $out/share
     mkdir -p $firmware/lib/firmware -p
     mkdir -p $out/lib/firmware -p
@@ -186,10 +237,17 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
     elif [ -f "$out/driver/amdxdna.tar.gz" ]; then
       cp "$out/driver/amdxdna.tar.gz" "${placeholder "firmware"}/lib/firmware/amdxdna/"
     fi
-
+    
+    cp ${placeholder "out"}/${placeholder "out"}/* $out -r
+    mv $out/license/LICENSE $out/share/licenses/xrt/LICENSE
+    mv $out/xbflash2 $out/bin/
+    mv $out/python/* $out/lib/python3.x/site-packages/xrt/
+    rm -rf $out/nix
+    rm -f $out/version.json $out/setup.sh $out/setup.csh
     # Remove firmware from $out so it doesn't get duplicated
     rm -f "$out/share/amdxdna/amdxdna.tar.gz" || true
     rm -f "$out/driver/amdxdna.tar.gz" || true
+    rm -rf $out/driver_code
   '';
 
 }
