@@ -137,7 +137,7 @@
     "vm.swappiness" = 10;
   };
   # Networking stuff
-  networking.hostName = "nixtop"; # Define your hostname.
+  networking.hostName = "frametop"; # Define your hostname.
   networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true;
   # Printing
