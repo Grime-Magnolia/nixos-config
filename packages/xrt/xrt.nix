@@ -5,6 +5,7 @@ stdenv.mkDerivation rec {
   outputs = [
     "out" 
     "firmware"
+    "dev"
   ];
   outputSpecified = true;
   setOutputFlags = true;
@@ -82,12 +83,6 @@ stdenv.mkDerivation rec {
     mkdir -p ${placeholder "out"}/driver_code
     mkdir -p ${placeholder "out"}/driver_code/driver/include
     mkdir -p ${placeholder "out"}/driver_code/driver/xocl
-    echo "Patching CMake static linking directives..."
-
-    # Disable -static flags that break linking on Nix
-    #substituteInPlace src/runtime_src/core/pcie/tools/xbflash.qspi/CMakeLists.txt \
-    #  --replace-fail 'target_link_options(''${XBFLASH_NAME_NEW} PRIVATE "-static")' \
-    #            '# target_link_options(''${XBFLASH_NAME_NEW} PRIVATE "-static")  # disabled for Nix'
 
    substituteInPlace src/runtime_src/core/tools/xbmgmt2/CMakeLists.txt \
   --replace-fail 'target_link_options(''${XBMGMT2_NAME}_static PRIVATE "-static" "-L''${Boost_LIBRARY_DIRS}")' \
@@ -222,14 +217,13 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
       '${placeholder "out"}'
 
 
-
     mkdir -p $out/share
     mkdir -p $firmware/lib/firmware -p
     mkdir -p $out/lib/firmware -p
   '';
   postInstall = ''
     echo "Separating firmware and kernel module..."
-
+    mkdir -p $dev/lib/python3.x/site-packages/xrt
     # Move firmware blobs
     mkdir -p "${placeholder "firmware"}/lib/firmware/amdxdna"
     if [ -f "$out/share/amdxdna/amdxdna.tar.gz" ]; then
@@ -239,9 +233,13 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
     fi
     
     cp ${placeholder "out"}/${placeholder "out"}/* $out -r
-    mv $out/license/LICENSE $out/share/licenses/xrt/LICENSE
+    #mv $out/license/LICENSE $out/share/licenses/xrt/LICENSE
     mv $out/xbflash2 $out/bin/
-    mv $out/python/* $out/lib/python3.x/site-packages/xrt/
+    mv $out/python/* $dev/lib/python3.x/site-packages/xrt/
+    mv $out/$dev/include $dev/include
+    mv $out/lib $dev/lib
+    mv $out/driver/include/* $dev/include/
+    rm -f $out/xilinx.icd
     rm -rf $out/nix
     rm -f $out/version.json $out/setup.sh $out/setup.csh
     # Remove firmware from $out so it doesn't get duplicated
