@@ -145,19 +145,19 @@
   services.printing.webInterface = true;
   services.printing.drivers = [pkgs.hplip];
   hardware.printers = {
-    #ensureDefaultPrinter = "HP_Color_LaserJet_MFP_M281fdw_CED640";
-    #ensurePrinters = [
-    #  {
-    #    deviceUri = "ipp://192.168.2.86/ipp";
-    #    location = "home";
-    #    name = "HP_Color_LaserJet_MFP_M281fdw_CED640";
-    #    model = "everywhere";
-    #    ppdOptions = {
-    #      PageSize = "A4";
-    #      Duplex = "DuplexNoTumble";
-    #    };
-    #  }
-    #];
+    ensureDefaultPrinter = "HP_Color_LaserJet_MFP_M281fdw_CED640";
+    ensurePrinters = [
+      {
+        deviceUri = "ipp://192.168.2.86/ipp";
+        location = "home";
+        name = "HP_Color_LaserJet_MFP_M281fdw_CED640";
+        model = "everywhere";
+        ppdOptions = {
+          PageSize = "A4";
+          Duplex = "DuplexNoTumble";
+        };
+      }
+    ];
   };
 
   services.avahi = {
@@ -166,15 +166,11 @@
     openFirewall = true;
   };
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  environment.sessionVariables = { LIBVA_DRIVER_NAME = "iHD"; }; # Force intel-media-driver
   hardware.graphics = { # hardware.graphics since NixOS 24.11
     enable = true;
     enable32Bit = true;
     extraPackages = with pkgs; [
-      intel-media-driver # LIBVA_DRIVER_NAME=iHD
-      intel-vaapi-driver # LIBVA_DRIVER_NAME=i965 (older but works better for Firefox/Chromium)
       libvdpau-va-gl
-      intel-ocl
     ];
   };
   # Bluetooth
@@ -203,15 +199,6 @@
   programs.steam.gamescopeSession.args = [
     "--expose-wayland"
   ];
-  #systemd.services.mullvaddaemon = {
-  #  wantedBy = ["default.target"];
-  #  requiredBy = ["network.target"];
-  #  after = ["network.target"];
-  #  description = "Mullvad daemon starter";
-  #  serviceConfig = {
-  #    ExecStart = "${pkgs.mullvad-vpn}/bin/mullvad-daemon";
-  #  };
-  #};
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
 
@@ -381,6 +368,7 @@
       mpv
       opencpn
       kitty
+      kicad
     ];
   };
 
