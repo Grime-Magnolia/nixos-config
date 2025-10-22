@@ -130,6 +130,7 @@
             inherit system;
             inherit pkgs;
             modules = [
+              stylix.nixosModules.stylix
               ./general-conf.nix
               ./modules/arrstack.nix
               ./machines/tynix/configuration.nix
