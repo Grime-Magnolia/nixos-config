@@ -67,14 +67,13 @@ stdenv.mkDerivation rec {
   cmakeFlags = [
     "-DXRT_INSTALL_DIR=${placeholder "out"}"
     "-DCMAKE_INSTALL_PREFIX=${placeholder "out"}"
-    "-DCMAKE_BINARY_DIR=${placeholder "out"}/bin"
-    "-DFIRMWARE_INSTALL_DIR=${placeholder "firmware"}/lib/firmware"
+    "-DCMAKE_BINARY_DIR=./bin"
+    "-DCMAKE_INSTALL_INCLUDEDIR=./include"
     "-DCMAKE_INSTALL_LIBDIR=./lib"
     "-DPYTHON_EXECUTABLE=${pkgs.python3}/bin/python3"
     "-DCPACK_GENERATOR=TGZ"
     "-DXDNA_CPACK_LINUX_PKG_FLAVOR=nixos"
     "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
-    "-DENABLE_AZURE=OFF"
     "-DBUILD_SHARED_LIBS=ON"   # Prefer shared (.so) linking
     "-DXRT_BUILD_STATIC_EXECUTABLES=OFF"
     "-DXRT_STATIC_BUILD=OFF"
@@ -232,7 +231,7 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
       cp "$out/driver/amdxdna.tar.gz" "${placeholder "firmware"}/lib/firmware/amdxdna/"
     fi
     
-    cp ${placeholder "out"}/${placeholder "out"}/* $out -r
+    mv $out/$out/* $out
     #mv $out/license/LICENSE $out/share/licenses/xrt/LICENSE
     mv $out/xbflash2 $out/bin/
     mv $out/python/* $dev/lib/python3.x/site-packages/xrt/
