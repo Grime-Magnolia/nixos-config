@@ -464,21 +464,30 @@ label:focus {
 }
     '';
   };
-  #programs.hyprlock = { 
-  #  enable = true;
-  #  settings = {
-  #    general = {};
-  #    background = [
-  #      {
-  #        path = "${../../wallpapers/Sunset_cam.jpg}";
-  #      }
-  #    ];
-  #    input-field = [
-  #      { 
-  #        size = "350, 50"}
-  #    ];
-  #  };
-  #};
+  programs.hyprlock = { 
+    enable = false;
+    settings = {
+      general = {};
+      background = [
+        {
+          path = "${../../wallpapers/Sunset_cam.jpg}";
+        }
+      ];
+      input-field = [
+        { 
+          size = "350, 50";
+          outline_thickness = 8;
+          dots_size = 0.33;
+          dots_spacing = 0.15;
+          dots_center = false;
+          dots_rounding = -1;
+          outer_color = "rgba(0, 207, 230, 0.0)";
+          inner_color = "rgba(155,255,255,0.0)";
+
+        }
+      ];
+    };
+  };
   #stylix = {
   #  targets = {
   #    cava.rainbow.enable = true;
