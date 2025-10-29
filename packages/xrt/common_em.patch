@@ -1,0 +1,20 @@
+diff --git a/src/runtime_src/core/pcie/emulation/common_em/CMakeLists.txt b/src/runtime_src/core/pcie/emulation/common_em/CMakeLists.txt
+index 4c3fe025b..dbeb70e5f 100644
+--- a/src/runtime_src/core/pcie/emulation/common_em/CMakeLists.txt
++++ b/src/runtime_src/core/pcie/emulation/common_em/CMakeLists.txt
+@@ -4,7 +4,7 @@
+ SET (Protobuf_DEBUG)
+ INCLUDE(FindProtobuf)
+ FIND_PACKAGE(Protobuf REQUIRED)
+-
++FIND_PACKAGE(absl REQUIRED)
+ include_directories (
+ ${PROTOBUF_INCLUDE_DIR}
+ )
+@@ -44,5 +44,7 @@ target_link_libraries(common_em
+   xrt_coreutil
+   dl
+   pthread
++  absl::log
++  absl::log_internal_check_op
+   )

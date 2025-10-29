@@ -1,11 +1,12 @@
-{stdenv, latest, lib, pkgs, ...}:
+{stdenv, latest, linuxPackages, lib, pkgs, ...}:
 stdenv.mkDerivation rec {
   pname = "xrt";
   version = "202520.2.20.172";
   outputs = [
     "out" 
-    "firmware"
     "dev"
+    "driver"
+    "firmware"
   ];
   outputSpecified = true;
   setOutputFlags = true;
@@ -15,26 +16,57 @@ stdenv.mkDerivation rec {
     fetchSubmodules = true;
     outputHash = "sha256-QqOJHS/vhYvol0wshiuA+mO6dGGJGLjYhR8Xq5v7x8c=";
   };
-  #NIX_CFLAGS_COMPILE = "-isystem ${pkgs.glibc.dev}/include -isystem ${pkgs.glibc.dev}/include/x86_64-linux-gnu";
-  #NIX_LDFLAGS = "-L${pkgs.glibc}/lib";
+  patches = [
+    ./xrt-replay.patch
+    ./build-sh.patch
+    ./xrt_swemu.patch
+    ./common_em.patch
+  ];
   nativeBuildInputs = with pkgs; [
     cmake
     pkg-config
     gnumake
     gcc              # ensure a full gcc toolchain for configure/compiles
+    libgcc
     stdenv.cc.libc.static
     binutils
     bintools
+    #clang
     libdrm
     libusb1
+    linuxPackages.kernel.moduleBuildDependencies
+    protobuf_26
+    python3Packages.protobuf
+    python3
+    elfutils
+    libffi
+    strace
+    pciutils
+    perl
+    ncurses
+    lm_sensors
+    gdb
+    libyaml
   ];
   buildInputs = with pkgs; [
     ocl-icd
     opencl-headers
+    libffi
     cmake
+    gdb
+    perl
+    libtiff
+    libyaml
+    ncurses
+    lm_sensors
+    pciutils
     boost
     ocamlPackages.curses
+    ocamlPackages.pbrt
+    ocamlPackages.ocaml-protoc
+    strace
     openssl
+    python3Packages.protobuf
     rapidjson
     gtest
     git
@@ -45,20 +77,20 @@ stdenv.mkDerivation rec {
     linuxPackages.systemtap
     zlib
     libelf
+    elfutils
     latest.linuxPackages.kernel.dev
     python3Packages.pybind11
     python3
     udev
     level-zero
-    sphinx
-    protobuf
+    protobuf_26
     curl
     latest.linuxHeaders
+    protobufc
   ];
   NIX_CFLAGS_COMPILE = [
+    "-Wno-error"
     "-pthread"
-    "-isystem ${stdenv.cc.cc.lib}/include"
-    "-isystem ${stdenv.cc.cc.lib}/include/x86_64-linux-gnu"
   ];
   NIX_LDFLAGS = [
     "-L${pkgs.glibc}/lib"
@@ -68,15 +100,16 @@ stdenv.mkDerivation rec {
     "-DXRT_INSTALL_DIR=${placeholder "out"}"
     "-DCMAKE_INSTALL_PREFIX=${placeholder "out"}"
     "-DCMAKE_BINARY_DIR=./bin"
+    "-DCMAKE_INSTALL_BINDIR=./bin"
     "-DCMAKE_INSTALL_INCLUDEDIR=./include"
     "-DCMAKE_INSTALL_LIBDIR=./lib"
     "-DPYTHON_EXECUTABLE=${pkgs.python3}/bin/python3"
     "-DCPACK_GENERATOR=TGZ"
     "-DXDNA_CPACK_LINUX_PKG_FLAVOR=nixos"
-    "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+    "-DCMAKE_BUILD_TYPE=Release"
     "-DBUILD_SHARED_LIBS=ON"   # Prefer shared (.so) linking
     "-DXRT_BUILD_STATIC_EXECUTABLES=OFF"
-    "-DXRT_STATIC_BUILD=OFF"
+    "-DCROSS_COMPILE=ON"
   ];
   postPatch = ''
     mkdir -p ${placeholder "out"}/driver_code
@@ -104,7 +137,6 @@ stdenv.mkDerivation rec {
         --replace-warn "/lib/modules/\`uname -r\`" \
                   "${latest.linuxPackages_latest.kernel.dev}/lib/modules/${latest.linuxPackages_latest.kernel.version}"
     done
-
     substituteInPlace src/runtime_src/ert/CMakeLists.txt \
       --replace-fail 'set(ERT_INSTALL_FIRMWARE_PREFIX "/lib/firmware/xilinx")' \
       "set(ERT_INSTALL_FIRMWARE_PREFIX \"$out/lib/firmware/xilinx\")"
@@ -186,6 +218,10 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
     substituteInPlace build/build.sh \
       --replace-fail '/opt/xilinx/xrt' "$out"
 
+    #substituteInPlace src/runtime_src/core/tools/xbtracer/CMakeLists.txt \
+    #--replace-fail '${"$"}{Protobuf_LIBRARIES} xrt_coreutil' \
+    #          '${"$"}{Protobuf_LIBRARIES} absl_strings absl_synchronization absl_time absl_base xrt_coreutil'
+
     # Also patch test/build scripts just to avoid `/opt` references
     grep -Rl "/opt/xilinx" . | while read -r f; do
       substituteInPlace "$f" --replace "/opt/xilinx" "$out"
@@ -215,36 +251,47 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
       --replace-fail '/etc/OpenCL/vendors' \
       '${placeholder "out"}'
 
+    echo replacing each .sh file with shabang ${pkgs.bash} instead of /bin/bash
+    find . -type f -name "*.sh" | while read -r f; do
+      echo "  → Patching $f"
+      substituteInPlace "$f" \
+        --replace-warn "#!/bin/bash" \
+                  "#!${pkgs.bash}/bin/bash"
+    done
+    echo replacing each file that contains /usr/src and replace that with $out
+    grep -rnl "/usr/src" | while read -r f; do
+      echo "  → Patching $f"
+      substituteInPlace "$f" \
+        --replace-fail "usr/src" \
+                  "$out"
+    done
 
     mkdir -p $out/share
-    mkdir -p $firmware/lib/firmware -p
-    mkdir -p $out/lib/firmware -p
+  '';
+  buildPhase = ''
+  sh ./build.sh -noert -noinit -driver -noctest
   '';
   postInstall = ''
-    echo "Separating firmware and kernel module..."
-    mkdir -p $dev/lib/python3.x/site-packages/xrt
-    # Move firmware blobs
-    mkdir -p "${placeholder "firmware"}/lib/firmware/amdxdna"
-    if [ -f "$out/share/amdxdna/amdxdna.tar.gz" ]; then
-      cp "$out/share/amdxdna/amdxdna.tar.gz" "${placeholder "firmware"}/lib/firmware/amdxdna/"
-    elif [ -f "$out/driver/amdxdna.tar.gz" ]; then
-      cp "$out/driver/amdxdna.tar.gz" "${placeholder "firmware"}/lib/firmware/amdxdna/"
-    fi
-    
-    mv $out/$out/* $out
-    #mv $out/license/LICENSE $out/share/licenses/xrt/LICENSE
+    mkdir -p $out/share/licenses/xrt
+    mkdir -p $driver/driver
+    mkdir -p $dev/lib/python/site-packages/xrt
+    mv $out/license/LICENSE $out/share/licenses/xrt/LICENSE
     mv $out/xbflash2 $out/bin/
-    mv $out/python/* $dev/lib/python3.x/site-packages/xrt/
-    mv $out/$dev/include $dev/include
-    mv $out/lib $dev/lib
+    mv $out/python/* $dev/lib/python/
+    mv $out/include/ $dev/include
+    mv $out/lib/*.a $dev/lib
     mv $out/driver/include/* $dev/include/
-    rm -f $out/xilinx.icd
-    rm -rf $out/nix
-    rm -f $out/version.json $out/setup.sh $out/setup.csh
-    # Remove firmware from $out so it doesn't get duplicated
-    rm -f "$out/share/amdxdna/amdxdna.tar.gz" || true
-    rm -f "$out/driver/amdxdna.tar.gz" || true
-    rm -rf $out/driver_code
+    mv $out/dkms.conf $driver/
+    mv $out/setup.sh $out/bin
+
+    mv $out/driver $driver
+    rm -f $out/bin/*.bat
+    rm -rf $driver/driver/include
+    rm -f $out/version.json $out/setup.csh $out/xilinx.icd
+    rm -rf $out/license
+    #rm -f "$out/share/amdxdna/amdxdna.tar.gz" || true
+    #rm -f "$out/driver/amdxdna.tar.gz" || true
+    #rm -rf $out/driver_code
   '';
 
 }
