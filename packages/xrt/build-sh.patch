@@ -1,0 +1,16 @@
+diff --git a/build/build.sh b/build/build.sh
+index 952833dc1..def76d8ed 100755
+--- a/build/build.sh
++++ b/build/build.sh
+@@ -2,8 +2,8 @@
+ 
+ set -e
+ 
+-OSDIST=`grep '^ID=' /etc/os-release | awk -F= '{print $2}' | tr -d '"'`
+-VERSION=`grep '^VERSION_ID=' /etc/os-release | awk -F= '{print $2}' | tr -d '"'`
++OSDIST="nixos"
++VERSION="25.05"
+ MAJOR=${VERSION%.*}
+ BUILDDIR=$(readlink -f $(dirname ${BASH_SOURCE[0]}))
+ CORE=`grep -c ^processor /proc/cpuinfo`
+

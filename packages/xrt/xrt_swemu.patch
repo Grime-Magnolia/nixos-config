@@ -1,0 +1,22 @@
+diff --git a/src/runtime_src/core/edge/sw_emu/CMakeLists.txt b/src/runtime_src/core/edge/sw_emu/CMakeLists.txt
+index a4be23411..ad829fa44 100644
+--- a/src/runtime_src/core/edge/sw_emu/CMakeLists.txt
++++ b/src/runtime_src/core/edge/sw_emu/CMakeLists.txt
+@@ -9,7 +9,7 @@ set(COMMON_SRC_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/..")
+ set(Protobuf_DEBUG)
+ include(FindProtobuf)
+ find_package(Protobuf REQUIRED)
+-
++find_package(absl REQUIRED)
+ include_directories(
+   ${EM_SRC_DIR}
+   ${COMMON_SRC_DIR}
+@@ -42,6 +42,8 @@ set_target_properties(xrt_swemu PROPERTIES VERSION ${XRT_VERSION_STRING}
+ target_link_libraries(xrt_swemu
+   PRIVATE
+   ${PROTOBUF_LIBRARY}
++  absl::log
++  absl::log_internal_check_op
+   xrt_coreutil
+   common_em
+   pthread

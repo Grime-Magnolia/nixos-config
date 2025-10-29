@@ -42,6 +42,9 @@
       CPU_DRIVER_OPMODE_ON_AC = "active";
       CPU_DRIVER_OPMODE_ON_BAT = "active";
 
+      PLATFORM_PROFILE_ON_AC = "performance";
+      PLATFORM_PROFILE_ON_BAT = "low-power";
+
       CPU_SCALING_MIN_FREQ_ON_AC=625000;
       CPU_SCALING_MAX_FREQ_ON_AC=4900000;
       CPU_SCALING_MIN_FREQ_ON_BAT=625000;
@@ -87,8 +90,12 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.extraModulePackages = with config.boot.kernelPackages; [
+    #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;}).driver
+  ];
   hardware.firmware = [
     (pkgs.callPackage ../../packages/xdna-driver/xdna-driver.nix {latest=unstable; }).firmware
+    #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable; }).firmware
   ];
   boot.kernelParams = [
     # Swap
@@ -294,6 +301,8 @@
     extraGroups = [ "networkmanager" "lp" "input" "wheel" "video"];
     shell = pkgs.fish;
     packages = with pkgs; [
+      # Custom packages
+      #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;}).driver
       # Games
       gamemode
       godot
@@ -312,6 +321,7 @@
       playerctl
       rpcs3
       #retroarch-full
+      mediainfo
       winetricks
       usbutils
       pciutils
@@ -326,6 +336,7 @@
       soundconverter
       freac
       flac
+      webcord
       evolution
       gst_all_1.gst-plugins-good
       gst_all_1.gst-plugins-ugly
