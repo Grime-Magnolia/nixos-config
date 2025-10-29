@@ -33,6 +33,7 @@
         config.allowUnfree = true;
         config.permittedInsecurePackages = [
           "openssl-1.1.1w"
+          "mbedtls-2.28.10"
         ];
       };
       pkgs = pkgsFor system;
