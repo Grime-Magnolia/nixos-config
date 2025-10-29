@@ -152,19 +152,19 @@
   services.printing.webInterface = true;
   services.printing.drivers = [pkgs.hplip];
   hardware.printers = {
-    ensureDefaultPrinter = "HP_Color_LaserJet_MFP_M281fdw_CED640";
-    ensurePrinters = [
-      {
-        deviceUri = "ipp://192.168.2.86/ipp";
-        location = "home";
-        name = "HP_Color_LaserJet_MFP_M281fdw_CED640";
-        model = "everywhere";
-        ppdOptions = {
-          PageSize = "A4";
-          Duplex = "DuplexNoTumble";
-        };
-      }
-    ];
+    #ensureDefaultPrinter = "HP_Color_LaserJet_MFP_M281fdw_CED640";
+    #ensurePrinters = [
+    #  {
+    #    deviceUri = "ipp://192.168.2.86/ipp";
+    #    location = "home";
+    #    name = "HP_Color_LaserJet_MFP_M281fdw_CED640";
+    #    model = "everywhere";
+    #    ppdOptions = {
+    #      PageSize = "A4";
+    #      Duplex = "DuplexNoTumble";
+    #    };
+    #  }
+    #];
   };
 
   services.avahi = {
@@ -229,6 +229,8 @@
   services.xserver.enable = true;
   services.xserver.excludePackages = [pkgs.xterm];
   virtualisation.waydroid.enable = true;
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
   # enable gfs and udisks2
   services.udisks2.enable = true;
   services.gvfs.enable = true;
@@ -298,12 +300,15 @@
   users.users.tygo = {
     isNormalUser = true;
     description = "Tygo";
-    extraGroups = [ "networkmanager" "lp" "input" "wheel" "video"];
+    extraGroups = [ "networkmanager" "lp" "input" "wheel" "video" "wireshark"];
     shell = pkgs.fish;
     packages = with pkgs; [
       # Custom packages
       #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;}).driver
       # Games
+      logseq
+      wireshark
+      quickemu
       gamemode
       godot
       steam-devices-udev-rules
