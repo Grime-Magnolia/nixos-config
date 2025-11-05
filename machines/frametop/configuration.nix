@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, builtins, unstable, inputs, ... }:
+{ config, pkgs, lib, builtins, stable, unstable, inputs, ... }:
 
 {
   imports = [ # Include the results of the hardware scan.
@@ -10,7 +10,7 @@
     # ./modules
   ];
   nix = {
-    package = pkgs.nixVersions.stable;
+    package = pkgs.nixVersions.latest;
 
     extraOptions = ''
       experimental-features = nix-command flakes
@@ -68,7 +68,9 @@
     size = 64*1024; # 16 GB
   }];
   zramSwap.enable = true;
-  
+  boot.loader.grub = {
+    theme = "${stable.kdePackages.breeze-grub}/grub/themes/breeze";
+  };
   # Auto updates
   system.autoUpgrade = {
     enable = true;
@@ -89,13 +91,13 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = stable.linuxPackages_latest;
   boot.extraModulePackages = with config.boot.kernelPackages; [
-    #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;}).driver
+    #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;})
   ];
   hardware.firmware = [
-    (pkgs.callPackage ../../packages/xdna-driver/xdna-driver.nix {latest=unstable; }).firmware
-    #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable; }).firmware
+    (pkgs.callPackage ../../packages/xdna-driver/xdna-driver.nix {latest=unstable;}).firmware
+    #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;}).firmware
   ];
   boot.kernelParams = [
     # Swap
@@ -135,7 +137,7 @@
     after = [ "multi-user.target" ];
 
     serviceConfig = {
-      ExecStart = "${pkgs.powertop}/bin/powertop --auto-tune";
+      ExecStart = "${stable.powertop}/bin/powertop --auto-tune";
       Type = "oneshot";
       RemainAfterExit = true;
     };
@@ -150,23 +152,32 @@
   # Printing
   services.printing.enable = true;
   services.printing.webInterface = true;
-  services.printing.drivers = [pkgs.hplip];
+  services.printing.drivers = [stable.hplipWithPlugin];
   hardware.printers = {
-    #ensureDefaultPrinter = "HP_Color_LaserJet_MFP_M281fdw_CED640";
-    #ensurePrinters = [
-    #  {
-    #    deviceUri = "ipp://192.168.2.86/ipp";
-    #    location = "home";
-    #    name = "HP_Color_LaserJet_MFP_M281fdw_CED640";
-    #    model = "everywhere";
-    #    ppdOptions = {
-    #      PageSize = "A4";
-    #      Duplex = "DuplexNoTumble";
-    #    };
-    #  }
-    #];
+    ensureDefaultPrinter = "HP_Color_LaserJet_MFP_M281fdw_CED640";
+    ensurePrinters = [
+      {
+        deviceUri = "ipp://192.168.2.86/ipp";
+        location = "home";
+        name = "HP_Color_LaserJet_MFP_M281fdw_CED640";
+        model = "everywhere";
+        ppdOptions = {
+          PageSize = "A4";
+          Duplex = "DuplexNoTumble";
+        };
+      }
+    ];
   };
-
+  services.saned.enable = true;
+  hardware.sane = {
+    enable = true;
+    extraBackends = [ pkgs.sane-airscan];
+    disabledDefaultBackends = [
+      "escl"
+    ];   # disable hpaio and others
+    openFirewall = true;
+  };
+  services.udev.packages = [ pkgs.sane-airscan ];
   services.avahi = {
     enable = true;
     nssmdns4 = true;
@@ -176,7 +187,7 @@
   hardware.graphics = { # hardware.graphics since NixOS 24.11
     enable = true;
     enable32Bit = true;
-    extraPackages = with pkgs; [
+    extraPackages = with stable; [
       libvdpau-va-gl
     ];
   };
@@ -187,10 +198,10 @@
 
 
   system.activationScripts.myst-symlink.text = ''
-    ln -sf ${pkgs.bash}/bin/bash /bin/
-    ln -sf ${pkgs.less}/bin/less /bin/
-    ln -sf ${pkgs.sudo}/bin/sudo /bin/
-    ln -sf ${pkgs.fish}/bin/fish /bin/
+    ln -sf ${stable.bash}/bin/bash /bin/
+    ln -sf ${stable.less}/bin/less /bin/
+    ln -sf ${stable.sudo}/bin/sudo /bin/
+    ln -sf ${stable.fish}/bin/fish /bin/
   '';
   # *Arr stack
   services = {
@@ -227,7 +238,7 @@
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
-  services.xserver.excludePackages = [pkgs.xterm];
+  services.xserver.excludePackages = [stable.xterm];
   virtualisation.waydroid.enable = true;
   virtualisation.libvirtd.enable = true;
   programs.virt-manager.enable = true;
@@ -255,11 +266,19 @@
   services.fprintd = {
     enable = true;
   }; 
-  security.pam.services.login.fprintAuth = false;
-  security.pam.services.gdm-fingerprint.fprintAuth = true;
-  security.pam.services.gdm.fprintAuth = true;
+  security.pam.services.login.fprintAuth = lib.mkForce true;
+  security.pam.services.gdm-fingerprint = {
+    fprintAuth = true;
+    enableGnomeKeyring=true;
+  };
+  security.pam.services.gdm = {
+    fprintAuth = true;
+    enableGnomeKeyring = true;
+  };
+
   security.pam.services.sudo.fprintAuth = true;  # optional
   services.logind.powerKey = "lock";
+
 
 
   fonts.fontDir.enable = true;
@@ -275,10 +294,8 @@
     variant = "";
   };
   #networking.useDHCP = true;
-  # Enable CUPS to print documents.
-  #services.printing.enable = true;
-
   # Enable sound with pipewire.
+ 
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -297,22 +314,26 @@
   # services.xserver.desktopManager.retroarch.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.groups.arr.members = ["bazarr" "jellyfin" "lidarr" "radarr" "sonarr" "transmission" "tygo"];
+  users.groups.wireshark.members = ["tygo"];
   users.users.tygo = {
     isNormalUser = true;
     description = "Tygo";
-    extraGroups = [ "networkmanager" "lp" "input" "wheel" "video" "wireshark"];
-    shell = pkgs.fish;
-    packages = with pkgs; [
+    extraGroups = [ "networkmanager" "lp" "input" "wheel" "video" "wireshark" "scanner" "arr"];
+    shell = stable.fish;
+    packages = with stable; [
       # Custom packages
-      #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;}).driver
+      #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;})
       # Games
       logseq
       wireshark
+      alpaca
       quickemu
       gamemode
       godot
       steam-devices-udev-rules
       superTuxKart
+      imagemagick
+      gnome-clocks
       dualsensectl
       pcsx2
       vkd3d
@@ -331,6 +352,8 @@
       usbutils
       pciutils
       cava
+      simple-scan
+      unstable.metasploit
       ghidra
       #nixos-generators
       protontricks
@@ -405,7 +428,7 @@
   services.hypridle.enable = true;
   programs.localsend.enable = true;
 
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = with stable; [
     wget
     neovim
     papers
@@ -460,7 +483,7 @@
 
   services.flatpak.enable = true;
   xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+  xdg.portal.extraPortals = [ stable.xdg-desktop-portal-hyprland ];
   xdg.portal.config.common.default = "gtk";
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
