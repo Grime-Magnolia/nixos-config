@@ -1,0 +1,12 @@
+diff --git a/source/pyproject.toml b/source/pyproject.toml
+index c1fcb4b..85fb1c7 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -24,7 +24,6 @@ classifiers = [
+     "Programming Language :: Rust",
+     "Programming Language :: Python :: Implementation :: CPython",
+     "Programming Language :: Python :: Implementation :: PyPy",
+-    "Programming Language :: Python :: Implementation :: GraalPy",
+ ]
+ dependencies = ["tomli>=1.1.0 ; python_version<'3.11'"]
+ dynamic = ["version"]
