@@ -1,16 +1,16 @@
-{stdenv, latest, linuxPackages, lib, pkgs, ...}:
+{stdenv, latest, linuxPackages, linuxHeaders, lib, pkgs, linuxPackages_latest, ...}:
 stdenv.mkDerivation rec {
   pname = "xrt";
   version = "202520.2.20.172";
   outputs = [
     "out" 
     "dev"
-    "driver"
-    "firmware"
+    #"driver"
+    #"firmware"
   ];
   outputSpecified = true;
   setOutputFlags = true;
-  src = latest.fetchgit {
+  src = pkgs.fetchgit {
     url = "https://github.com/Xilinx/XRT";
     rev = "${version}";
     fetchSubmodules = true;
@@ -22,6 +22,9 @@ stdenv.mkDerivation rec {
     ./xrt_swemu.patch
     ./common_em.patch
   ];
+  env = {
+    XRT_FIRMWARE_DIR="${placeholder "out"}/lib/";
+  };
   nativeBuildInputs = with pkgs; [
     cmake
     pkg-config
@@ -31,7 +34,6 @@ stdenv.mkDerivation rec {
     stdenv.cc.libc.static
     binutils
     bintools
-    #clang
     libdrm
     libusb1
     linuxPackages.kernel.moduleBuildDependencies
@@ -78,14 +80,14 @@ stdenv.mkDerivation rec {
     zlib
     libelf
     elfutils
-    latest.linuxPackages.kernel.dev
+    linuxPackages.kernel.dev
     python3Packages.pybind11
     python3
     udev
     level-zero
     protobuf_26
     curl
-    latest.linuxHeaders
+    linuxHeaders
     protobufc
   ];
   NIX_CFLAGS_COMPILE = [
@@ -95,10 +97,13 @@ stdenv.mkDerivation rec {
   NIX_LDFLAGS = [
     "-L${pkgs.glibc}/lib"
   ];
-
+  makeFlags = [
+    #"-C ${placeholder "out"}/driver/xocl"
+  ];
   cmakeFlags = [
     "-DXRT_INSTALL_DIR=${placeholder "out"}"
     "-DCMAKE_INSTALL_PREFIX=${placeholder "out"}"
+    #"-DXRT_NPU=1"
     "-DCMAKE_BINARY_DIR=./bin"
     "-DCMAKE_INSTALL_BINDIR=./bin"
     "-DCMAKE_INSTALL_INCLUDEDIR=./include"
@@ -113,6 +118,7 @@ stdenv.mkDerivation rec {
   ];
   postPatch = ''
     mkdir -p ${placeholder "out"}/driver_code
+    mkdir -p ${placeholder "out"}/driver/xocl
     mkdir -p ${placeholder "out"}/driver_code/driver/include
     mkdir -p ${placeholder "out"}/driver_code/driver/xocl
 
@@ -135,11 +141,11 @@ stdenv.mkDerivation rec {
       # Replace literal /lib/modules/`uname -r` occurrences
       substituteInPlace "$f" \
         --replace-warn "/lib/modules/\`uname -r\`" \
-                  "${latest.linuxPackages_latest.kernel.dev}/lib/modules/${latest.linuxPackages_latest.kernel.version}"
+                  "${linuxPackages_latest.kernel.dev}/lib/modules/${linuxPackages_latest.kernel.version}"
     done
     substituteInPlace src/runtime_src/ert/CMakeLists.txt \
       --replace-fail 'set(ERT_INSTALL_FIRMWARE_PREFIX "/lib/firmware/xilinx")' \
-      "set(ERT_INSTALL_FIRMWARE_PREFIX \"$out/lib/firmware/xilinx\")"
+      "set(ERT_INSTALL_FIRMWARE_PREFIX \"${placeholder "out"}/lib/firmware/xilinx\")"
 
     substituteInPlace src/runtime_src/core/common/aiebu/src/cpp/utils/asm/CMakeLists.txt \
       --replace 'SET(AIEBU_STATIC TRUE)' \
@@ -190,10 +196,6 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
     --replace-fail 'set (XRT_DKMS_INSTALL_DIR "/usr/src/xrt-''${XRT_VERSION_STRING}")' \
     'set(XRT_DKMS_INSTALL_DIR "${placeholder "out"}/driver_code")'
     
-    #substituteInPlace src/runtime_src/core/tools/xbtracer/script/ch_mangled/CMakeLists.txt \
-    #--replace-fail 'set(XRT_INSTALL_DIR ''${CMAKE_CURRENT_BINARY_DIR})' \
-    #'set(XRT_INSTALL_DIR ${placeholder "out"})'
-
     substituteInPlace build/xocl_petalinux_compile/CMakeLists.txt \
     --replace-fail 'set (XRT_INSTALL_DIR           "''${CMAKE_BINARY_DIR}")' \
     'set (XRT_INSTALL_DIR           "${placeholder "out"}")'
@@ -217,10 +219,6 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
     # Patch hardcoded install prefix
     substituteInPlace build/build.sh \
       --replace-fail '/opt/xilinx/xrt' "$out"
-
-    #substituteInPlace src/runtime_src/core/tools/xbtracer/CMakeLists.txt \
-    #--replace-fail '${"$"}{Protobuf_LIBRARIES} xrt_coreutil' \
-    #          '${"$"}{Protobuf_LIBRARIES} absl_strings absl_synchronization absl_time absl_base xrt_coreutil'
 
     # Also patch test/build scripts just to avoid `/opt` references
     grep -Rl "/opt/xilinx" . | while read -r f; do
@@ -268,25 +266,22 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
 
     mkdir -p $out/share
   '';
-  buildPhase = ''
-  sh ./build.sh -noert -noinit -driver -noctest
-  '';
   postInstall = ''
     mkdir -p $out/share/licenses/xrt
-    mkdir -p $driver/driver
-    mkdir -p $dev/lib/python/site-packages/xrt
+    #mkdir -p $driver/driver
+    #mkdir -p $dev/lib/python/site-packages/xrt
     mv $out/license/LICENSE $out/share/licenses/xrt/LICENSE
-    mv $out/xbflash2 $out/bin/
-    mv $out/python/* $dev/lib/python/
-    mv $out/include/ $dev/include
-    mv $out/lib/*.a $dev/lib
-    mv $out/driver/include/* $dev/include/
-    mv $out/dkms.conf $driver/
-    mv $out/setup.sh $out/bin
+    #mv $out/xbflash2 $out/bin/
+    #mv $out/python/* $dev/lib/python/
+    #mv $out/include/ $dev/include
+    #mv $out/lib/*.a $dev/lib
+    #mv $out/driver/include/* $dev/include/
+    #mv $out/dkms.conf $driver/
+    cp $out/setup.sh $out/bin
 
-    mv $out/driver $driver
+    #mv $out/driver $driver
     rm -f $out/bin/*.bat
-    rm -rf $driver/driver/include
+    #rm -rf $driver/driver/include
     rm -f $out/version.json $out/setup.csh $out/xilinx.icd
     rm -rf $out/license
     #rm -f "$out/share/amdxdna/amdxdna.tar.gz" || true
