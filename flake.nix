@@ -50,10 +50,7 @@
         }) // {
         packages.x86_64-linux = {
           xdna-driver = pkgs.callPackage ./packages/xdna-driver/xdna-driver.nix {
-            latest=import unstable {
-              system = "x86_64-linux";
-              config.allowUnfree = true;
-            };
+            latest= (pkgsFor system nixpkgs); inherit unstable;
           };
           xrt = pkgs.callPackage ./packages/xrt/xrt.nix {
             latest = import unstable {
@@ -64,6 +61,10 @@
           mergekit = pkgs.callPackage ./packages/mergekit/mergekit.nix {
             latest = (pkgsFor system nixpkgs); inherit unstable;
           };
+          vitis = pkgs.callPackage ./packages/vitis/vitis.nix {
+            latest = (pkgsFor system nixpkgs); inherit unstable;
+          };
+
         };
 
         nixosConfigurations = {
