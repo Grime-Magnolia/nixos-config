@@ -97,7 +97,7 @@
   ];
   hardware.firmware = [
     (pkgs.callPackage ../../packages/xdna-driver/xdna-driver.nix {latest=unstable;}).firmware
-    #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;}).firmware
+    #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;})
   ];
   boot.kernelParams = [
     # Swap
@@ -153,7 +153,7 @@
   services.printing.enable = true;
   services.printing.webInterface = true;
   services.printing.drivers = [stable.hplipWithPlugin];
-  hardware.printers = {
+  hardware.printers = lib.mkIf true {
     ensureDefaultPrinter = "HP_Color_LaserJet_MFP_M281fdw_CED640";
     ensurePrinters = [
       {
@@ -313,6 +313,13 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.desktopManager.retroarch.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  services.clamav = {
+    daemon.enable = true;
+    updater.enable = true;
+    fangfrisch.enable = true;
+    scanner.enable = true;
+  };
+  programs.wireshark.enable = true;
   users.groups.arr.members = ["bazarr" "jellyfin" "lidarr" "radarr" "sonarr" "transmission" "tygo"];
   users.groups.wireshark.members = ["tygo"];
   users.users.tygo = {
@@ -326,6 +333,7 @@
       # Games
       logseq
       wireshark
+      clamav
       alpaca
       quickemu
       gamemode
@@ -334,6 +342,8 @@
       superTuxKart
       imagemagick
       gnome-clocks
+      xournalpp
+      freeplane
       dualsensectl
       pcsx2
       vkd3d
@@ -475,6 +485,9 @@
     cmake
     ninja
     yt-dlp
+    pandoc
+    lynx
+    calibre
     #libgcc
     swaynotificationcenter
     haskellPackages.build
