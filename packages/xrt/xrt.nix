@@ -23,8 +23,9 @@ stdenv.mkDerivation rec {
     ./common_em.patch
   ];
   env = {
-    XRT_FIRMWARE_DIR="${placeholder "out"}/lib/";
-  };
+    XRT_FIRMWARE_DIR="${placeholder "firmware"}/lib/firmware";
+    XILINX_VITIS="${pkgs.callPackage ../vitis/vitis.nix {}}/lib";
+   };
   nativeBuildInputs = with pkgs; [
     cmake
     pkg-config
@@ -49,10 +50,13 @@ stdenv.mkDerivation rec {
     lm_sensors
     gdb
     libyaml
+    linux-doc
+    #uclibc-ng
   ];
   buildInputs = with pkgs; [
     ocl-icd
     opencl-headers
+    #uclibc-ng
     libffi
     cmake
     gdb
@@ -89,6 +93,8 @@ stdenv.mkDerivation rec {
     curl
     linuxHeaders
     protobufc
+    linux-doc
+    (pkgs.callPackage ../vitis/vitis.nix {})
   ];
   NIX_CFLAGS_COMPILE = [
     "-Wno-error"
@@ -98,12 +104,15 @@ stdenv.mkDerivation rec {
     "-L${pkgs.glibc}/lib"
   ];
   makeFlags = [
-    #"-C ${placeholder "out"}/driver/xocl"
+    "-C ${placeholder "out"}/driver/xocl"
   ];
+  buildPhase = ''
+    echo make all -j$(nproc)
+    make all -j$(nproc)
+  '';
   cmakeFlags = [
     "-DXRT_INSTALL_DIR=${placeholder "out"}"
     "-DCMAKE_INSTALL_PREFIX=${placeholder "out"}"
-    #"-DXRT_NPU=1"
     "-DCMAKE_BINARY_DIR=./bin"
     "-DCMAKE_INSTALL_BINDIR=./bin"
     "-DCMAKE_INSTALL_INCLUDEDIR=./include"
@@ -117,10 +126,11 @@ stdenv.mkDerivation rec {
     "-DCROSS_COMPILE=ON"
   ];
   postPatch = ''
-    mkdir -p ${placeholder "out"}/driver_code
-    mkdir -p ${placeholder "out"}/driver/xocl
-    mkdir -p ${placeholder "out"}/driver_code/driver/include
-    mkdir -p ${placeholder "out"}/driver_code/driver/xocl
+  mkdir -p ${placeholder "out"}/driver_code
+  mkdir -p ${placeholder "out"}/driver/xocl
+  mkdir -p ${placeholder "out"}/driver_code/driver/include
+  mkdir -p ${placeholder "out"}/driver_code/driver/xocl
+  #mkdir -p ${placeholder "firmware"}/lib/firmware
 
    substituteInPlace src/runtime_src/core/tools/xbmgmt2/CMakeLists.txt \
   --replace-fail 'target_link_options(''${XBMGMT2_NAME}_static PRIVATE "-static" "-L''${Boost_LIBRARY_DIRS}")' \
@@ -145,7 +155,7 @@ stdenv.mkDerivation rec {
     done
     substituteInPlace src/runtime_src/ert/CMakeLists.txt \
       --replace-fail 'set(ERT_INSTALL_FIRMWARE_PREFIX "/lib/firmware/xilinx")' \
-      "set(ERT_INSTALL_FIRMWARE_PREFIX \"${placeholder "out"}/lib/firmware/xilinx\")"
+      "set(ERT_INSTALL_FIRMWARE_PREFIX \"${placeholder "firmware"}/lib/firmware/xilinx\")"
 
     substituteInPlace src/runtime_src/core/common/aiebu/src/cpp/utils/asm/CMakeLists.txt \
       --replace 'SET(AIEBU_STATIC TRUE)' \
@@ -268,25 +278,13 @@ target_link_libraries(''${UNIT_TEST_NAME} PRIVATE Threads::Threads)'
   '';
   postInstall = ''
     mkdir -p $out/share/licenses/xrt
-    #mkdir -p $driver/driver
-    #mkdir -p $dev/lib/python/site-packages/xrt
     mv $out/license/LICENSE $out/share/licenses/xrt/LICENSE
-    #mv $out/xbflash2 $out/bin/
-    #mv $out/python/* $dev/lib/python/
-    #mv $out/include/ $dev/include
-    #mv $out/lib/*.a $dev/lib
-    #mv $out/driver/include/* $dev/include/
-    #mv $out/dkms.conf $driver/
     cp $out/setup.sh $out/bin
+    find -type f -name "*.bin"
 
-    #mv $out/driver $driver
     rm -f $out/bin/*.bat
-    #rm -rf $driver/driver/include
     rm -f $out/version.json $out/setup.csh $out/xilinx.icd
     rm -rf $out/license
-    #rm -f "$out/share/amdxdna/amdxdna.tar.gz" || true
-    #rm -f "$out/driver/amdxdna.tar.gz" || true
-    #rm -rf $out/driver_code
   '';
 
 }
