@@ -1,15 +1,8 @@
 {pkgs,lib,stdenv,fetchurl,bash,...}:
-let
-  file = fetchurl {
-    url = "https://amd-ax-dl.entitlenow.com/dl/ul/2025/05/31/R212730247/FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145_Lin64.bin?hash=LuPN1cIwFdAaEMgyqgbYLw&expires=1763413377&filename=FPGAs_AdaptiveSoCs_Unified_SDI_2025.1_0530_0145_Lin64.bin";
-    sha256 = "sha256-vKpzOJPkXjO2aQjZil5S1+T+QIwuCaJUgqmrb7qiN2M=";
-  };
- 
-in
 pkgs.stdenv.mkDerivation (finalAttrs: {
   pname = "vitis";
   version = "2025.1";
-
+  src = ./vitisarchive;
   dontUnpack = true;
 
   nativeBuildInputs = with pkgs;[
@@ -26,10 +19,6 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   mkdir -p fakebin
   ln -s ${pkgs.coreutils}/bin/* fakebin/
   export PATH=$PWD/fakebin:$PATH
-
-  cp ${file} installer.bin
-  chmod +x installer.bin
-  ./installer.bin --noexec --target extracted
   '';
   patches = [
 
@@ -41,13 +30,13 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
       --replace-warn "/bin/bash" \
                 "${bash}/bin/bash"
   done
-  substituteInPlace extracted/bin/setup-boot-loader.sh \
+  substituteInPlace bin/setup-boot-loader.sh \
     --replace-warn '"''${root}/bin/ldlibpath.sh"' \
     '"sh ''${root}/bin/ldlibpath.sh"'
   '';
   
   installPhase = ''
-  cd extracted
+  pwd
   #export X_JAVA_HOME=${pkgs.jdk24}
   export X_CLASS_PATH=$(printf "%s:" lib/classes/*.jar)
   export LD_LIBRARY_PATH=$(printf "%s:" lib/*.o)   # native libs
