@@ -64,7 +64,9 @@
           vitis = pkgs.callPackage ./packages/vitis/vitis.nix {
             latest = (pkgsFor system nixpkgs); inherit unstable;
           };
-
+          vitissrc = pkgs.callPackage ./packages/vitis/vitissrc.nix {
+            latest = (pkgsFor system nixpkgs); inherit unstable;
+          };
         };
 
         nixosConfigurations = {

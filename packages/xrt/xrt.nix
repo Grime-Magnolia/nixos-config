@@ -24,7 +24,7 @@ stdenv.mkDerivation rec {
   ];
   env = {
     XRT_FIRMWARE_DIR="${placeholder "firmware"}/lib/firmware";
-    XILINX_VITIS="${pkgs.callPackage ../vitis/vitis.nix {}}/lib";
+    XILINX_VITIS="${pkgs.callPackage ../vitis/vitis.nix {}}";
    };
   nativeBuildInputs = with pkgs; [
     cmake
@@ -104,7 +104,7 @@ stdenv.mkDerivation rec {
     "-L${pkgs.glibc}/lib"
   ];
   makeFlags = [
-    "-C ${placeholder "out"}/driver/xocl"
+    #"-C ${placeholder "out"}/driver/xocl"
   ];
   buildPhase = ''
     echo make all -j$(nproc)

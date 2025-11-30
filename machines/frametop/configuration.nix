@@ -313,7 +313,7 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.desktopManager.retroarch.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  services.clamav = {
+  services.clamav = lib.mkIf false {
     daemon.enable = true;
     updater.enable = true;
     fangfrisch.enable = true;

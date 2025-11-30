@@ -2,7 +2,7 @@
 pkgs.stdenv.mkDerivation (finalAttrs: {
   pname = "vitis";
   version = "2025.1";
-  src = ./vitisarchive;
+  src = /home/tygo/vitisarchive;
   dontUnpack = true;
 
   nativeBuildInputs = with pkgs;[
@@ -23,19 +23,8 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   patches = [
 
   ];
-  postPatch = ''
-  find . -type f -exec grep -Il "^#!/bin/" {} \;| while read -r f; do
-    echo "  → Patching $f"
-    substituteInPlace "$f" \
-      --replace-warn "/bin/bash" \
-                "${bash}/bin/bash"
-  done
-  substituteInPlace bin/setup-boot-loader.sh \
-    --replace-warn '"''${root}/bin/ldlibpath.sh"' \
-    '"sh ''${root}/bin/ldlibpath.sh"'
-  '';
-  
   installPhase = ''
+  cd $src
   pwd
   #export X_JAVA_HOME=${pkgs.jdk24}
   export X_CLASS_PATH=$(printf "%s:" lib/classes/*.jar)
@@ -49,7 +38,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     -b Add \
     -p Vitis \
     -e "Vitis Unified Software Platform" \
-    --location $out 2>/dev/null|tail -n 2|head -n 1 > config.txt
+    --location $out 2>/dev/null|tail -n 2|head -n 1 > /tmp/config.txt || true
 
   ${pkgs.jdk24}/bin/java \
     -cp "$X_CLASS_PATH" \
@@ -59,9 +48,17 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     -b Install \
     -p Vitis \
     -e "Vitis Unified Software Platform" \
-    -c config.txt \
+    -c /tmp/config.txt \
     --location $out
   '';
+  postInstall = ''
+    find $out -xtype l -exec rm -v {} +
+  '';
+  dontCheckForBrokenSymlinks = true;
+
+  outputHashMode = "recursive";
+  outputHashAlgo = "sha256";
+  outputHash = "";
 
   meta = {
     description = "";
