@@ -48,7 +48,7 @@ in {
         source = "initializer.conf";
       };
     plugins = [
-      pkgs.hyprlandPlugins.hyprgrass
+      #pkgs.hyprlandPlugins.hyprgrass
     ];
   };
   programs.waybar = {
@@ -128,7 +128,7 @@ in {
           warning = 30;
           critical = 15;
         };
-        full-at = 80;
+        full-at = 100;
         format = "{capacity}% {icon}";
         format-full = "{capacity}% {icon}";
         format-charging = "{capacity}% ";
