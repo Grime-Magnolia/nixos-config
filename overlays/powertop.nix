@@ -1,7 +1,7 @@
 self: super: {
-  powertop = super.powertop.overrideAttrs (oldAttrs: rec {
+  powertop = super.powertop.overrideAttrs (old: {
     pname = "powertop";
-    version = "latest";
+    version = "master";
 
     src = super.fetchFromGitHub {
       owner = "fenrus75";
@@ -9,8 +9,26 @@ self: super: {
       rev = "master";
       sha256 = "sha256-OrDhavETzXoM6p66owFifKXv5wc48o7wipSypcorPmA=";
     };
-    nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.pkg-config pkgs.libtracefs ];
-    buildInputs = old.buildInputs ++ [ pkgs.libtracefs ];
+
+    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [
+      super.pkg-config
+      super.gettext
+      super.autoconf
+      super.automake
+      super.libtool
+      super.autoconf-archive
+    ];
+
+    buildInputs = (old.buildInputs or []) ++ [
+      super.libtracefs
+      super.libtraceevent
+      super.ncurses
+    ];
+
+    # Let the standard configurePhase handle PKG_CONFIG_PATH
+    configureFlags = (old.configureFlags or []) ++ [
+      "--prefix=$out"
+    ];
   });
 }
 

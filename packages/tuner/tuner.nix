@@ -2,19 +2,21 @@
 pkgs.runCommand "tuner" {
   __impure = true;
   __noChroot = true;
-  buildInputs = [ pkgs.powertop pkgs.gawk pkgs.sudo ];
+  buildInputs = [ pkgs.powertop pkgs.gawk pkgs.coreutils ];
 } ''
   mkdir -p $out
-  sudo powertop --auto-tune-dump 2>/dev/null \
-    | awk '
-      /### auto-tune-dump commands BEGIN/ {flag=1; next}
-      /### auto-tune-dump commands END/   {flag=0; exit}
-      flag && $0 ~ /^# echo/ {
-        sub(/^# /, "")
-        print
-      }
-    ' > $out/tuner.sh
-  chmod +x $out/tuner.sh
-  cat $out/tuner.sh
+  echo "=== BUILD DEBUG ===" >&2
+  echo "User: $(whoami)" >&2
+  echo "UID: $(id -u)" >&2
+  echo "EUID: $(id -u -r)" >&2
+  echo "Groups: $(id)" >&2
+  echo "=== Running powertop ===" >&2
+  powertop --auto-tune-dump 2>/dev/null || {
+    echo "powertop FAILED with exit code $?" >&2
+    powertop --version >&2
+    ls -la /sys/power/ >&2 || true
+    exit 1
+  }
+  # rest unchanged...
 ''
 

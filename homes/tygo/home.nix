@@ -92,7 +92,7 @@ in {
           car = "";
           default = ["" "" ""];
         };
-        on-click = "pavucontrol";
+        on-click = "hyprpwcenter";
       };
       tray = {  
         spacing = 10;
@@ -466,6 +466,41 @@ label:focus {
     background-color: #0069d4;
 }
     '';
+  };
+  services.hypridle = {
+    enable = true;
+    settings = {
+      general = {
+        lock_cmd = "pidof hyprlock || hyprlock";
+        ignore_dbus_inhibit = false;
+        ignore_systemd_inhibit = false;
+      };
+      listener = [
+        {
+          timeout = 150;
+          on-timeout = "brightnessctl -s set 10";
+          on-resume = "brightnessctl -r";
+        }
+        {
+          timeout = 150;
+          on-timeout = "brightnessctl -sd rgb:kbd_backlight set 0";
+          on-resume = "brightnessctl -rd rgb:kbd_backlight";
+        }
+        {
+          timeout = 300;
+          on-timeout = "loginctl lock-session";
+        }
+        {
+          timeout = 360;
+          on-timeout = "hyprctl dispatch dpms off";
+          on-resume = "hyprctl dispatch dpms on";
+        }
+        {
+          timeout = 420;
+          on-timeout = "systemctl suspend";
+        }
+      ];
+    };
   };
   programs.hyprlock = { 
     enable = false;

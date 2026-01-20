@@ -4,7 +4,10 @@
 
 { config, pkgs, lib, builtins, stable, unstable, inputs, ... }:
 
-{
+let 
+  forEach = xs: f: map f xs;
+  pkgs-unstable = inputs.hyprland.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+in rec {
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     # ./modules
@@ -13,10 +16,28 @@
     package = pkgs.nixVersions.latest;
 
     extraOptions = ''
-      experimental-features = nix-command flakes
+      experimental-features = nix-command flakes impure-derivations ca-derivations
     '';
+    gc = {
+      automatic = false;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
+      persistent = false;
+    };
+    optimise = {
+      automatic = true;
+      persistent = false;
+      dates = [
+        "03:45"
+      ];
+    };
+    settings = {
+      trusted-users = [ "tygo" ];
+      substituters = ["https://hyprland.cachix.org" "https://attic.xuyh0120.win/lantian"];
+      trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="];
+    };
   };
-  # homepage-dashboard
+  # Local Arr stack on this instance when enabled
   arr = {
     enable = true;
     glance.enable = true;
@@ -25,6 +46,7 @@
     radarr.key = "28e25bce8551464bade6724c6da60b0f";
     readarr.key = "e43cea9107d14a02a34990b80b2efcd4";
     bazarr.key = "2c63ca8ebb624ae5f7df78e41a33023d";
+    jellyfin.enable = false;
   };
   general.enable = true;
 
@@ -32,7 +54,7 @@
   services.tlp = {
     enable = true;
     settings = {
-
+      # CPU scaling on ac and on battery
       CPU_SCALING_GOVERNOR_ON_AC = "performance";
       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
@@ -42,8 +64,19 @@
       CPU_DRIVER_OPMODE_ON_AC = "active";
       CPU_DRIVER_OPMODE_ON_BAT = "active";
 
+      # GPU scaling on AC and on Battery
       PLATFORM_PROFILE_ON_AC = "performance";
       PLATFORM_PROFILE_ON_BAT = "low-power";
+
+      RADEON_DPM_PERF_LEVEL_ON_AC="high";
+      RADEON_DPM_PERF_LEVEL_ON_BAT="auto";
+
+      RADEON_DPM_STATE_ON_AC="performance";
+      RADEON_DPM_STATE_ON_BAT="balanced";
+      
+      AMDGPU_ABM_LEVEL_ON_AC=0;
+      AMDGPU_ABM_LEVEL_ON_BAT=1;
+
 
       CPU_SCALING_MIN_FREQ_ON_AC=625000;
       CPU_SCALING_MAX_FREQ_ON_AC=4900000;
@@ -68,24 +101,16 @@
     size = 64*1024; # 16 GB
   }];
   zramSwap.enable = true;
-  boot.loader.grub = {
-    theme = "${stable.kdePackages.breeze-grub}/grub/themes/breeze";
-  };
-  # Auto updates
+  #boot.loader.grub = {
+  #  theme = "${stable.kdePackages.breeze-grub}/grub/themes/breeze";
+  #};
+  # Auto updates takes somehow 10 seconds to start
   system.autoUpgrade = {
     enable = true;
     flake = inputs.self.outPath;
-    flags = [
-      "--print-build-logs"
-    ];
     dates = "02:00";
     randomizedDelaySec = "45min";
-  };
-  # Remove garbage
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
+    persistent = false;
   };
 
   # Bootloader.
@@ -96,59 +121,41 @@
     #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;})
   ];
   hardware.firmware = [
-    (pkgs.callPackage ../../packages/xdna-driver/xdna-driver.nix {latest=unstable;}).firmware
-    #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;})
+  # (pkgs.callPackage ../../packages/xdna-driver/xdna-driver.nix {latest=unstable;}).firmware
+  # (pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;})
   ];
   boot.kernelParams = [
+
     # Swap
     "zswap.enabled=1" # enables zswap
     "zswap.compressor=lz4" # compression algorithm
     "zswap.max_pool_percent=50" # maximum percentage of RAM that zswap is allowed to use
     "zswap.shrinker_enabled=1" # whether to shrink the pool proactively on high memory pressure
     
-    # Gpu settings
-    #"amdgpu.dc=1"            # Enable Display Core, needed for power-saving
-    #"amdgpu.aspm=1"          # ASPM power management
-    #"amdgpu.dpm=1"           # Dynamic Power Management
-    #"amdgpu.enable_psr=1"
-    #"amdgpu.ppfeaturemask=0xffffbfff"  # Enables manual DPM control
-
-    # Pcie settings
-    #"mem_sleep_default=deep"
-    #"acpi_sleep=deep"
-
     # Suspending / Sleep settings
     "amd_iommu=fullflush" # Should make the suspending process more effecient
-    #"resume=/dev/nvme0n1p2"
-    #"resume_offset=224638976"   # replace with new first extent
+
     "nvme_core.default_ps_max_latency_us=0"
     "nvme_core.io_timeout=30"
     "nvme_core.max_retries=10"
     "rtc_cmos.use_acpi_alarm=1"
   ];
-  #services.udev.extraRules = ''
-  #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_force_performance_level}="low"
-  #  ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card0", ATTR{device/power_dpm_state}="battery"
-  #'';
 
-  systemd.services.powertop = {
-    description = "PowerTOP tunings";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "multi-user.target" ];
+  powerManagement.powertop.enable = true;
 
-    serviceConfig = {
-      ExecStart = "${stable.powertop}/bin/powertop --auto-tune";
-      Type = "oneshot";
-      RemainAfterExit = true;
-    };
-  };
   boot.kernel.sysctl = {
     "vm.swappiness" = 10;
   };
   # Networking stuff
+  networking.extraHosts = '''';
   networking.hostName = "frametop"; # Define your hostname.
   networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;
+  networking.networkmanager = {
+    enable = true;
+    wifi.powersave = true;
+  };
+  systemd.network.wait-online.enable = false;
+  boot.initrd.systemd.network.wait-online.enable = false;
   # Printing
   services.printing.enable = true;
   services.printing.webInterface = true;
@@ -178,6 +185,9 @@
     openFirewall = true;
   };
   services.udev.packages = [ pkgs.sane-airscan ];
+  #services.udev.extraRules = ''
+  #  KERNEL=="ttyACM[0-9]*", MODE="0666"
+  #'';
   services.avahi = {
     enable = true;
     nssmdns4 = true;
@@ -187,9 +197,8 @@
   hardware.graphics = { # hardware.graphics since NixOS 24.11
     enable = true;
     enable32Bit = true;
-    extraPackages = with stable; [
-      libvdpau-va-gl
-    ];
+    #package = pkgs-unstable.mesa;
+    #package32 = pkgs-unstable.pkgsi686Linux.mesa;
   };
   # Bluetooth
   hardware.bluetooth.enable = true;
@@ -202,18 +211,18 @@
     ln -sf ${stable.less}/bin/less /bin/
     ln -sf ${stable.sudo}/bin/sudo /bin/
     ln -sf ${stable.fish}/bin/fish /bin/
+    ln -sf ${stable.python312}/bin/python3 /bin/
+    ln -sf ${stable.stockfish}/bin/stockfish /bin/
   '';
-  # *Arr stack
+
   services = {
     fwupd.enable = true;
     resolved.enable = true;
     libinput.enable = true;
   };
   programs.fish.enable = true;
-  programs.captive-browser.enable = true;
-  programs.captive-browser.interface = "wlp58s0";
   programs.steam.enable = true;
-  programs.steam.gamescopeSession.enable = true;
+  programs.steam.gamescopeSession.enable = false;
   programs.steam.gamescopeSession.args = [
     "--expose-wayland"
   ];
@@ -238,8 +247,8 @@
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
+  services.xserver.videoDrivers = [ "amdgpu" ];
   services.xserver.excludePackages = [stable.xterm];
-  virtualisation.waydroid.enable = true;
   virtualisation.libvirtd.enable = true;
   programs.virt-manager.enable = true;
   # enable gfs and udisks2
@@ -251,13 +260,26 @@
     nerd-fonts.noto
     nerd-fonts.jetbrains-mono
     noto-fonts-cjk-sans
-    noto-fonts-emoji
+    noto-fonts-color-emoji
     fira-code
     fira-code-symbols
     mplus-outline-fonts.githubRelease
     nerd-fonts.caskaydia-cove
   ];
-
+  
+  systemd.tmpfiles.rules = 
+  let
+    rocmEnv = pkgs.symlinkJoin {
+      name = "rocm-combined";
+      paths = with pkgs.rocmPackages; [
+        rocblas
+        hipblas
+        clr
+      ];
+    };
+  in [
+    "L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
+  ];
   # Fingerprint shit
   systemd.services.fprintd = {
     wantedBy = [ "multi-user.target" ];
@@ -277,15 +299,13 @@
   };
 
   security.pam.services.sudo.fprintAuth = true;  # optional
-  services.logind.powerKey = "lock";
-
-
+  services.logind.settings.Login.HandlePowerKey = "lock";
 
   fonts.fontDir.enable = true;
   services.power-profiles-daemon.enable = false;
   # Enable the KDE Plasma Desktop Environment.
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+  services.displayManager.gdm.enable = true;
+  services.desktopManager.gnome.enable = true;
   programs.dconf.enable = true;
   services.gnome.core-apps.enable = false;
   # Configure keymap in X11
@@ -303,12 +323,6 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.desktopManager.retroarch.enable = true;
@@ -319,19 +333,31 @@
     fangfrisch.enable = true;
     scanner.enable = true;
   };
+  services.openssh = {
+    enable = true;
+  };
   programs.wireshark.enable = true;
   users.groups.arr.members = ["bazarr" "jellyfin" "lidarr" "radarr" "sonarr" "transmission" "tygo"];
   users.groups.wireshark.members = ["tygo"];
   users.users.tygo = {
     isNormalUser = true;
     description = "Tygo";
-    extraGroups = [ "networkmanager" "lp" "input" "wheel" "video" "wireshark" "scanner" "arr"];
+    extraGroups = [ "networkmanager" "dialout" "lp" "input" "wheel" "video" "wireshark" "scanner" "arr"];
     shell = stable.fish;
     packages = with stable; [
-      # Custom packages
       #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;})
-      # Games
       logseq
+      pipeline
+      hyprpwcenter
+      hyprlauncher
+      perf
+      perf-tools
+      blender
+      telegram-desktop
+      super-slicer
+      rawtherapee
+      gnome-graphs
+      prismlauncher
       wireshark
       clamav
       alpaca
@@ -346,33 +372,30 @@
       freeplane
       dualsensectl
       pcsx2
-      vkd3d
+      jq
+      orca-slicer
       freecad
-      vulkan-tools
       protonplus
       goverlay
       mangohud
-      dxvk
       nh
       playerctl
       rpcs3
-      #retroarch-full
       mediainfo
       winetricks
       usbutils
       pciutils
       cava
       simple-scan
+      gnomecast
+      waywall
       unstable.metasploit
       ghidra
-      #nixos-generators
-      protontricks
       handbrake
       wvkbd
       p7zip
       powertop
       soundconverter
-      freac
       flac
       webcord
       evolution
@@ -389,7 +412,6 @@
       helvum
       avizo
       rofi
-      rkdeveloptool
       recordbox
       pavucontrol
       obs-studio
@@ -400,7 +422,9 @@
       libnotify
       gphoto2
       audacity
+      stockfish
       gimp
+      kicad
       iotas
       planify
       ffmpeg_6-full
@@ -409,18 +433,15 @@
       signal-desktop
       cartridges
       eww
-      gamescope
       hyprpolkitagent
       hyprshot
       grim
       slurp
       mpv
-      opencpn
       kitty
-      kicad
     ];
   };
-
+  services.mullvad-vpn.enable = true;
   # Ollama
   services.ollama = {
     enable = true;
@@ -429,11 +450,34 @@
     group = "ollama";
   };
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-
+  # flatpak
+  services.flatpak = {
+    update.auto = {
+      enable = true;
+      onCalendar = "weekly"; # Default value
+    };
+    packages = [
+      "page.codeberg.libre_menu_editor.LibreMenuEditor"
+      "io.github.ungoogled_software.ungoogled_chromium"
+      "io.freetubeapp.FreeTube"
+      "com.usebottles.bottles"
+      "com.mastermindzh.tidal-hifi"
+      "com.github.eneshecan.WhatsAppForLinux"
+      "com.github.IsmaelMartinez.teams_for_linux"
+      "com.felipekinoshita.Wildcard"
+      #{
+      #  bundle = "https://launcher.hytale.com/builds/release/linux/amd64/hytale-launcher-latest.flatpak";
+      #  appId = "com.hytale.launcher";
+      #  sha256 = "494c5fca8bc2dae9999ac3a3e5b39367c59f182a6759ccfbb2f3844b035e915d";
+      #}
+    ];
+  };
   # Hyprland apps
-  programs.hyprland.enable = true;
+  programs.hyprland = {
+    enable = true;
+    #package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+    #portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+  };
   programs.hyprlock.enable = true;
   services.hypridle.enable = true;
   programs.localsend.enable = true;
@@ -453,8 +497,10 @@
     inkscape
     sudo
     tldr
+    brightnessctl
     baobab
     nautilus
+    vulkan-tools
     python312
     python312Packages.gphoto2
     waybar
@@ -490,13 +536,27 @@
     calibre
     #libgcc
     swaynotificationcenter
-    haskellPackages.build
     gnome-text-editor
   ];
-
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = if true then with pkgs; [
+    # Add any missing dynamic libraries for unpackaged programs
+    libxext
+    libx11
+    libxrender
+    libxtst
+    libxi
+    libxft
+    freetype
+    libxcursor
+    libxrandr
+    libxxf86vm
+    libGL
+    openal
+  ] else [];
   services.flatpak.enable = true;
   xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ stable.xdg-desktop-portal-hyprland ];
+  xdg.portal.extraPortals = [ stable.xdg-desktop-portal-hyprland ]; #inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland];
   xdg.portal.config.common.default = "gtk";
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

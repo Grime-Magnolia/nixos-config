@@ -3,10 +3,13 @@
 pkgs.stdenv.mkDerivation {
   name = "vitissrc";
   outputs = ["out"];
+  src = /home/tygo/vitisarchive;
   dontUnpack = true;
-
-  installPhase = ''
+  outputHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+  outputHashMode = "recursive";
+  outputHashAlgo = "sha256";
+  buildCommand = ''
     mkdir -p $out
-    cp -r ${./vitisarchive} $out
+    cp -r $src $out
   '';
 }

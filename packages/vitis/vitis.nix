@@ -55,11 +55,6 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     find $out -xtype l -exec rm -v {} +
   '';
   dontCheckForBrokenSymlinks = true;
-
-  outputHashMode = "recursive";
-  outputHashAlgo = "sha256";
-  outputHash = "";
-
   meta = {
     description = "";
     homepage = "https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vitis.html";

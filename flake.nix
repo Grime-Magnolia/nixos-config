@@ -8,8 +8,12 @@
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     hyprland.url = "github:hyprwm/Hyprland";
-    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware/master";
+    };
     nixos-grub-themes.url = "github:jeslie0/nixos-grub-themes";
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
     stylix = {
       url = "github:nix-community/stylix/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -21,7 +25,6 @@
     let
       system = "x86_64-linux";
       nixosModules = {
-        flatpak = import ./modules/flatpak.nix;
       };
       customModules = builtins.attrValues self.nixosModules;
       withCustomModules = modules: modules ++ builtins.attrValues nixosModules;
@@ -30,6 +33,7 @@
         overlays = [
           (import ./overlays/yt-dlp.nix)
           (import ./overlays/freac.nix)
+          (import ./overlays/powertop.nix)
         ];
         config.allowUnfree = true;
         config.permittedInsecurePackages = [
@@ -67,6 +71,11 @@
           vitissrc = pkgs.callPackage ./packages/vitis/vitissrc.nix {
             latest = (pkgsFor system nixpkgs); inherit unstable;
           };
+          tuner = pkgs.callPackage ./packages/tuner/tuner.nix {
+            pkgs = (pkgsFor system nixpkgs);
+          };
+          powertop = pkgs.powertop;
+
         };
 
         nixosConfigurations = {
@@ -102,6 +111,7 @@
               inputs.stylix.nixosModules.stylix
               inputs.impermanence.nixosModules.impermanence
               inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
+              inputs.nix-flatpak.nixosModules.nix-flatpak
               ./modules/stylix.nix
               ./general-conf.nix
               ./modules/arrstack.nix
@@ -113,7 +123,7 @@
                 home-manager.useUserPackages = true;
                 home-manager.users.tygo = {
                   imports = [
-                    ./homes/tygo/home.nix
+                    ./homes/frametop/home.nix
                   ];
                 };
                 home-manager.backupFileExtension = null;
