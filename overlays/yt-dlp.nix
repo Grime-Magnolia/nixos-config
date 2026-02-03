@@ -1,7 +1,7 @@
 self: super: {
   yt-dlp = super.yt-dlp.overrideAttrs (oldAttrs: rec {
     pname = "yt-dlp";
-    version = "2025.11.12";
+    version = "2026.01.31";
 
     src = super.fetchFromGitHub {
       owner = "yt-dlp";

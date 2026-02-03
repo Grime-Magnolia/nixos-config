@@ -7,7 +7,6 @@
     flake-utils.url = "github:numtide/flake-utils";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    hyprland.url = "github:hyprwm/Hyprland";
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
@@ -31,7 +30,7 @@
       pkgsFor = system: flake: import flake {
         inherit system;
         overlays = [
-          (import ./overlays/yt-dlp.nix)
+          #(import ./overlays/yt-dlp.nix)
           (import ./overlays/freac.nix)
           (import ./overlays/powertop.nix)
         ];

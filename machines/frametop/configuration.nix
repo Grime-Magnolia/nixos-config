@@ -160,7 +160,7 @@ in rec {
   services.printing.enable = true;
   services.printing.webInterface = true;
   services.printing.drivers = [stable.hplipWithPlugin];
-  hardware.printers = lib.mkIf true {
+  hardware.printers = lib.mkIf false {
     ensureDefaultPrinter = "HP_Color_LaserJet_MFP_M281fdw_CED640";
     ensurePrinters = [
       {
@@ -197,8 +197,8 @@ in rec {
   hardware.graphics = { # hardware.graphics since NixOS 24.11
     enable = true;
     enable32Bit = true;
-    #package = pkgs-unstable.mesa;
-    #package32 = pkgs-unstable.pkgsi686Linux.mesa;
+    package = stable.mesa;
+    package32 = stable.pkgsi686Linux.mesa;
   };
   # Bluetooth
   hardware.bluetooth.enable = true;
@@ -212,7 +212,9 @@ in rec {
     ln -sf ${stable.sudo}/bin/sudo /bin/
     ln -sf ${stable.fish}/bin/fish /bin/
     ln -sf ${stable.python312}/bin/python3 /bin/
-    ln -sf ${stable.stockfish}/bin/stockfish /bin/
+    ln -sf ${stable.stockfish}/bin/stockfish /bin/ 
+    ln -sf ${stable.calculix-ccx}/bin/ccx /bin/ 
+    ln -sf ${stable.gmsh}/bin/gmsh /bin/
   '';
 
   services = {
@@ -347,6 +349,7 @@ in rec {
     packages = with stable; [
       #(pkgs.callPackage ../../packages/xrt/xrt.nix {latest=unstable;})
       logseq
+      calc
       pipeline
       hyprpwcenter
       hyprlauncher
@@ -481,13 +484,11 @@ in rec {
   programs.hyprlock.enable = true;
   services.hypridle.enable = true;
   programs.localsend.enable = true;
-
   environment.systemPackages = with stable; [
     wget
     neovim
     papers
     vlc
-    fish
     hyprpaper
     swww
     lm_sensors
