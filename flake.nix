@@ -46,10 +46,7 @@
     in 
       inputs.flake-utils.lib.eachDefaultSystem (system:       
         {
-          # For use with `nix develop` or `nix run`
-          devShell = pkgs.mkShell {
-            buildInputs = with pkgs; [ git nixfmt ];
-          };
+        
         }) // {
         packages.x86_64-linux = {
           xdna-driver = pkgs.callPackage ./packages/xdna-driver/xdna-driver.nix {
@@ -72,6 +69,9 @@
           };
           tuner = pkgs.callPackage ./packages/tuner/tuner.nix {
             pkgs = (pkgsFor system nixpkgs);
+          };
+          meshcore_py = pkgs.callPackage ./packages/meshcore/meshcore.nix {
+            latest = (pkgsFor system nixpkgs); inherit unstable;
           };
           powertop = pkgs.powertop;
 
